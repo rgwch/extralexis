@@ -12,6 +12,7 @@ At this time, the tool copies
 * incoming documents from omnivore and lucinda
 * encounter texts
 * lab values
+* vaccinations
 
 But you can easily add extractors for your own Elexis-plugins.
 

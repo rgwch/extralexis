@@ -1,8 +1,5 @@
 import { db } from './index';
 import { elexisDateToDateString, normalize } from './util';
-import { extractOmnivore } from './plugins/omnivore';
-import { extractBriefe } from './plugins/briefe';
-import { extractKons } from './plugins/kons';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -65,12 +62,15 @@ export async function extractData(id: string) {
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
             const handlers = (process.env.handlers || "omnivore").split(",").map(h => h.trim().toLowerCase());
             if (handlers.includes("omnivore")) {
+                const { extractOmnivore } = await import('./plugins/omnivore');
                 await extractOmnivore(id, patpath);
             }
             if (handlers.includes("briefe")) {
+                const { extractBriefe } = await import('./plugins/briefe');
                 await extractBriefe(id, patpath);
             }
             if (handlers.includes("kons")) {
+                const { extractKons } = await import('./plugins/kons');
                 await extractKons(id, patpath);
             }
             if (handlers.includes("lucinda")) {
@@ -80,6 +80,10 @@ export async function extractData(id: string) {
             if (handlers.includes("labor")) {
                 const { extractLabresults } = await import('./plugins/lab');
                 await extractLabresults(id, patpath);
+            }
+            if (handlers.includes("vaccs")) {
+                const { extractVaccinations } = await import('./plugins/vaccs');
+                await extractVaccinations(id, patpath);
             }
         }
     } catch (err) {
