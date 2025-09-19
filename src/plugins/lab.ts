@@ -20,9 +20,42 @@ export async function extractLabresults(patId: string, outputDir: string) {
             const r = normalize(result)
             total.push({ "Datum": elexisDateToDateString(r.datum), "Item": r.titel, "Wert": r.resultat, "Einheit": r.einheit, "Referenzbereich": r.refmann, "Kommentar": r.kommentar })
         }
+
+        // Write JSON file
         const fileName = `labor_${patId}.json`;
         const filePath = path.join(output, fileName);
         await fs.writeFile(filePath, JSON.stringify(total, null, 2));
+
+        // Write CSV file
+        const csvFileName = `labor_${patId}.csv`;
+        const csvFilePath = path.join(output, csvFileName);
+
+        // Create CSV header
+        const csvHeader = 'Datum,Item,Wert,Einheit,Referenzbereich,Kommentar\n';
+
+        // Create CSV rows
+        const csvRows = total.map(row => {
+            // Escape commas and quotes in CSV fields
+            const escapeCSVField = (field: string) => {
+                if (!field) return '';
+                if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+                    return `"${field.replace(/"/g, '""')}"`;
+                }
+                return field;
+            };
+
+            return [
+                escapeCSVField(row.Datum),
+                escapeCSVField(row.Item),
+                escapeCSVField(row.Wert),
+                escapeCSVField(row.Einheit),
+                escapeCSVField(row.Referenzbereich),
+                escapeCSVField(row.Kommentar)
+            ].join(',');
+        }).join('\n');
+
+        const csvContent = csvHeader + csvRows;
+        await fs.writeFile(csvFilePath, csvContent);
     } catch (error) {
         console.error(`Error extracting lab results for patient ${patId}:`, error);
     }
