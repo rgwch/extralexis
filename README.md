@@ -1,6 +1,6 @@
 # Extralexis - Extract data from elexis
 
-This tool is for doctors uing the [Elexis](http://www.elexis.ch) EMR system, who are giving up their medical practice. It extracts relevant data of the patients into separate directories in human readable form. 
+This tool is for doctors using the [Elexis](http://www.elexis.ch) EMR system, who are giving up their medical practice. It extracts relevant data of the patients into separate directories in human readable form. 
 Such directories can easily be copied on a stick or burned on a CD to hand them out directly to the patient.
 
 You can also use this tool to extract only one patient - e.g. someone who changes the doctor.
