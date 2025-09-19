@@ -32,7 +32,7 @@ then, copy .env.copy to .env and change the values to match your own system
 
 ## Usage
 
-If you want to extract encounter texts (i.e. you have included "kons" in the handlers list in .env), then you need to launch the elexis converter service to convert the Samdas entries to html:
+If you want to extract encounter texts (i.e. you have included "kons" in the handlers list in .env), then you need to launch the elexis converter service to convert the VersionedResource/Samdas entries to html:
 
 * Make sure you have installed java17
 * run java -jar elexis_converter_x.x.x.jar
