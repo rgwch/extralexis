@@ -1,0 +1,9 @@
+
+node_modules
+target
+build
+dist
+data
+*.class
+.env
+
