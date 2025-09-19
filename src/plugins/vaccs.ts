@@ -4,9 +4,14 @@ import { db } from '../index';
 import { elexisDateToDateString, normalize } from '../util';
 
 export async function extractVaccinations(patId: string, outputDir: string) {
+    const vaccs = await db("at_medevit_elexis_impfplan").where({ patient_id: patId }).whereNot("deleted", "1").select();
+    if (vaccs.length === 0) {
+        console.log(`No vaccinations found for patient ${patId}`);
+        return;
+    }
     const output = path.join(outputDir, "Impfungen");
     await fs.mkdir(output, { recursive: true });
-    const vaccs = await db("at_medevit_elexis_impfplan").where({ patient_id: patId }).whereNot("deleted", "1").select();
+
     const total = []
     for (const v of vaccs) {
         const r = normalize(v)
