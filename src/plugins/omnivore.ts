@@ -2,7 +2,7 @@ import { db } from '../index';
 import path from "path"
 import fs from "fs/promises"
 import { existsSync } from 'fs';
-import { elexisDateToDateString, normalize } from '../util';
+import { elexisDateToDateString, elexisDateToISODate, normalize } from '../util';
 
 /**
  * Omnivore is a document management system for Elexis.
@@ -34,9 +34,9 @@ export async function extractOmnivore(patId: string, outputDir: string) {
             }
             const basename = `${doc.title || 'unnamed_document'}`.trim().replace(/[\/\\?%*:|"<>]/g, '_');
             let filename = basename
-            if (!basename.match(/^[0-9][0-9]\.[0-9][0-9]\.[0-9]{2,4}.+/)) {
+            if (!basename.match(/^[0-9]{2,4}\-[0-9][0-9]\-[0-9]{2,4}.+/)) {
                 const date = doc.datum ?? doc.creationdate
-                filename = elexisDateToDateString(date) + '_' + basename
+                filename = elexisDateToISODate(date) + '_' + basename
             }
             if (filename.endsWith(ext)) {
                 filename = filename.substring(0, filename.length - ext.length - 1)

@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, normalize } from '../util';
+import { elexisDateToDateString, elexisDateToISODate, normalize } from '../util';
 import { existsSync } from 'fs';
 
 /**
@@ -43,9 +43,9 @@ export async function extractBriefe(patId: string, outputDir: string) {
             }
             basename = basename.trim().replace(/[\/\\?%*:|"<>]/g, '_');
             let filename = basename
-            if (!basename.match(/^[0-9][0-9]\.[0-9][0-9]\.[0-9]{2,4}.+/)) {
+            if (!basename.match(/^[0-9]{2,4}\-[0-9][0-9]\-[0-9]{2,4}.+/)) {
                 const date = doc.datum ?? doc.creationdate
-                filename = elexisDateToDateString(date) + '_' + basename
+                filename = elexisDateToISODate(date) + '_' + basename
             }
             if (filename.endsWith(ext)) {
                 filename = filename.substring(0, filename.length - ext.length - 1)
