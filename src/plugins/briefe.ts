@@ -38,7 +38,7 @@ export async function extractBriefe(patId: string, outputDir: string) {
             }
             const dest = await db("kontakt").select("Bezeichnung1", "Bezeichnung2").where({ id: doc.destid }).first();
             let basename = doc.betreff
-            if (dest) {
+            if (dest && (dest.bezeichnung1 || dest.bezeichnung2)) {
                 basename += ` (an ${dest.bezeichnung1 || ''} ${dest.bezeichnung2 || ''})`
             }
             basename = basename.trim().replace(/[\/\\?%*:|"<>]/g, '_');
@@ -57,6 +57,11 @@ export async function extractBriefe(patId: string, outputDir: string) {
                 defpath = filepath + `(${i++})`;
             }
             const contents = await db("heap").select("inhalt").where({ id: doc.id }).first();
+            if (!contents || !contents.inhalt) {
+                console.warn(`No content found for letter ${doc.id} (${filename})`);
+                continue;
+            }
+            console.log(`Writing letter ${doc.id} (${filename}.${ext})`);
             await fs.writeFile(defpath + '.' + ext, contents.inhalt);
         }
     } catch (error) {
