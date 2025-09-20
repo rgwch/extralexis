@@ -3,6 +3,13 @@ import path from 'path';
 import { db } from '../index';
 import { elexisDateToDateString, normalize } from '../util';
 
+/**
+ * Vaccinations are stored in the "at_medevit_elexis_impfplan" table. 
+ * This function extracts all vaccinations for a patient and saves them in both JSON and CSV formats.
+ * @param patId 
+ * @param outputDir 
+ * @returns 
+ */
 export async function extractVaccinations(patId: string, outputDir: string) {
     const vaccs = await db("at_medevit_elexis_impfplan").where({ patient_id: patId }).whereNot("deleted", "1").select();
     if (vaccs.length === 0) {

@@ -4,6 +4,14 @@ import fs from "fs/promises"
 import { existsSync } from 'fs';
 import { elexisDateToDateString, normalize } from '../util';
 
+/**
+ * Omnivore is a document management system for Elexis.
+ * Documents are stored in the "ch_elexis_omnivore_data" table, with metadata such as title, date, and mimetype.
+ * This function extracts all documents for a patient and saves them to the output directory.
+ * @param patId 
+ * @param outputDir 
+ * @returns 
+ */
 export async function extractOmnivore(patId: string, outputDir: string) {
     const output = path.join(outputDir, "Dokumente")
     try {

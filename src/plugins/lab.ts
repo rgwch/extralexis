@@ -4,6 +4,13 @@ import fs from "fs/promises"
 import { existsSync } from 'fs';
 import { elexisDateToDateString, normalize } from '../util';
 
+/**
+ * Lab results are stored in the "laborwerte" table, linked to "laboritems" for metadata.
+ * This function extracts all lab results for a patient and saves them in both JSON and CSV formats.
+ * @param patId 
+ * @param outputDir 
+ * @returns 
+ */
 export async function extractLabresults(patId: string, outputDir: string) {
     const output = path.join(outputDir, "Labor")
     try {

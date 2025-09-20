@@ -5,6 +5,17 @@ import { existsSync } from 'fs';
 import path from 'path';
 import * as Samdas from '@rgwch/samdastools';
 
+/**
+ * Text entries of consultations (Konsultationen) are stored in the "behandlungen" table.
+ * Elexis uses a custom rich text format called SAMDAS, and a versioned resource system to store
+ * the actual content. This function extracts all consultations for all cases of a patient,
+ * converts them to HTML, and saves them in a single HTML file per case.
+ * The conversion from VersionedResource/Samdas to HTML is done using a webservice (elexis-converter_x.y.z.jar) 
+ * and the @rgwch/samdastools library.
+ * @param patId 
+ * @param outputDir 
+ * @returns 
+ */
 export async function extractKons(patId: string, outputDir: string) {
   const fall_output = path.join(outputDir, "Faelle")
   const cases = await db("faelle").where({ patientid: patId }).whereNot("deleted", "1").select();

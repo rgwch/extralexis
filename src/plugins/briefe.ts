@@ -4,6 +4,17 @@ import { db } from '../index';
 import { elexisDateToDateString, normalize } from '../util';
 import { existsSync } from 'fs';
 
+/**
+ * In early versions of elexis, all documents were stored in the "briefe" and the "heap" table.
+ * (more specific: Metadata in "briefe", content in "heap").
+ * In later versions, only outgoing letters are stored in "briefe", while incoming letters and other documents
+ * are handled by a document manager, such as omnivore or lucinda. Most recent versions like elexis ungrad handle 
+ * all documents consistently and don't use "briefe" anymore.
+ * 
+ * This function extracts all documents stored in "briefe"/"heap" and saves them to the output directory.
+ * @param patId 
+ * @param outputDir 
+ */
 export async function extractBriefe(patId: string, outputDir: string) {
     const output = path.join(outputDir, "Briefe");
     try {
