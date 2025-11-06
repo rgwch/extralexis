@@ -60,7 +60,11 @@ export async function extractData(id: string) {
             const patpath = path.join(process.env.output || "./data", dirname);
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
-            const handlers = (process.env.handlers || "omnivore").split(",").map(h => h.trim().toLowerCase());
+            const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
+            if (handlers.includes("befunde")) {
+                const { extractFindings } = await import('./plugins/befunde');
+                await extractFindings(id, patpath);
+            }
             if (handlers.includes("omnivore")) {
                 const { extractOmnivore } = await import('./plugins/omnivore');
                 await extractOmnivore(id, patpath);

@@ -55,3 +55,20 @@ export async function getVersionedResource(b64: string): Promise<string> {
     console.error("Error fetching versioned resource", result.statusText);
     return ""
 }
+
+export async function hashmapToJson(mapped: string): Promise<any> {
+    const result = await fetch(`${process.env.converter}/extinfo/serialized-to-json`, {
+        method: 'POST',
+        body: mapped,
+        headers: {
+            'Content-Type': 'text/plain'
+        }
+    });
+    if (result.ok) {
+        const json = await result.json();
+        return json;
+    }
+    console.error("Error converting hashmap to json", result.statusText);
+    return null;
+}
+
