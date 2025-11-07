@@ -60,7 +60,9 @@ export async function extractData(id: string) {
             const patpath = path.join(process.env.output || "./data", dirname);
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
-            let html = `<h1>Patient ${makeLabel(pat)}</h1>\n`;
+            let html = `<h1>[${pat.patientnr}] - ${makeLabel(pat)}</h1>\n` +
+                `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1}, ${pat.email}</pre></div>\n`;
+
             const diags = pat.diagnosen
             if (diags) {
                 const diagsb64 = Buffer.isBuffer(diags) ? diags.toString('base64') : diags;
@@ -83,8 +85,12 @@ export async function extractData(id: string) {
                 html += `<h2>Familienanamnese</h2>\n`;
                 html += `<pre>${faexp}</pre>\n`;
             }
+            if (pat.bemerkung) {
+                html += `<h2>Bemerkung</h2>\n`;
+                html += `<pre>${pat.bemerkung}</pre>\n`;
+            }
             const htmlfile = path.join(patpath, "deckblatt.html");
-            await fs.writeFile(htmlfile, htmlSkeleton(`Patient ${makeLabel(pat)}`, html));
+            await fs.writeFile(htmlfile, htmlSkeleton(`[${pat.patientnr}] - ${makeLabel(pat)}`, html));
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
@@ -104,7 +110,7 @@ export async function extractData(id: string) {
             }
             if (handlers.includes("lucinda")) {
                 const { extractLucinda } = await import('./plugins/lucinda');
-                await extractLucinda(`${pat.bezeichnung1}_${pat.bezeichnung2}_${elexisDateToDateString(pat.geburtsdatum)}`, patpath);
+                await extractLucinda(`${pat.bezeichnung1}_${pat.bezeichnung2}_${elexisDateToDateString(pat.geburtsdatum)} `, patpath);
             }
             if (handlers.includes("labor")) {
                 const { extractLabresults } = await import('./plugins/lab');
