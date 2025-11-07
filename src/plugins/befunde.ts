@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
 import { elexisDateToDateString, normalize, hashmapToJson } from '../util';
-
+import { htmlToPdf } from '../pdf'
 /**
  * Extracts all findings (Befunde) for a patient from the "elexisbefunde" table 
  * and saves them in both JSON and CSV formats 
@@ -220,4 +220,6 @@ export async function extractFindings(patId: string, patLabel: string, outputDir
 </html>`;
 
     await fs.writeFile(htmlFilePath, htmlContent);
+    await htmlToPdf(htmlFilePath, path.join(output, "Befunde.pdf"));
+
 }

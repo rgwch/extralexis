@@ -1,5 +1,6 @@
 import { db } from './index';
 import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton } from './util';
+import { htmlToPdf } from './pdf';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -91,6 +92,7 @@ export async function extractData(id: string) {
             }
             const htmlfile = path.join(patpath, "deckblatt.html");
             await fs.writeFile(htmlfile, htmlSkeleton(`[${pat.patientnr}] - ${makeLabel(pat)}`, html));
+            await htmlToPdf(htmlfile, path.join(patpath, "deckblatt.pdf"));
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
