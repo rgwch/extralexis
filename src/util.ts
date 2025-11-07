@@ -135,6 +135,17 @@ h2 {
     margin-bottom: 15px;
 }
 
+h3 {
+    color: #34495e;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}   
+.subtitle{
+    color: #7f8c8d;
+    font-size: 0.9em;
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
 table {
     width: 100%;
     border-collapse: collapse;

@@ -10,9 +10,10 @@ import { elexisDateToDateString, normalize, hashmapToJson } from '../util';
  * @param outputDir 
  * @returns 
  */
-export async function extractFindings(patId: string, patLabel:string, outputDir: string) {
+export async function extractFindings(patId: string, patLabel: string, outputDir: string) {
     const setup = await db("elexisbefunde").where({ id: "__SETUP__" }).select();
-    const setupb64 = Buffer.isBuffer(setup[0].befunde) ? setup[0].befunde.toString('base64') : setup[0].befunde;
+    const raw = setup[0].befunde || setup[0].Befunde;
+    const setupb64 = Buffer.isBuffer(raw) ? raw.toString('base64') : raw;
     const setupjson = await hashmapToJson(setupb64);
     if (!setupjson || !setupjson.names) {
         console.log("No valid setup found for findings extraction");
@@ -32,16 +33,20 @@ export async function extractFindings(patId: string, patLabel:string, outputDir:
     for (const f of findings) {
         const r = normalize(f)
         const base64String = Buffer.isBuffer(r.befunde) ? r.befunde.toString('base64') : r.befunde;
-
-        const json = await hashmapToJson(base64String);
-        if (json) {
-            const element = setupjson[r.name]?.split(",");
-            if (!element) continue;
-            const line = { "Datum": elexisDateToDateString(r.datum), "Bezeichnung": r.name };
-            for (let i = 0; i < element.length; i++) {
-                line[element[i]] = json[element[i]];
+        try {
+            const json = await hashmapToJson(base64String);
+            if (json) {
+                const element = (setupjson[r.name] || setupjson[r.name + "_FIELDS"])?.split(",");
+                if (!element) continue;
+                const line = { "Datum": elexisDateToDateString(r.datum), "Bezeichnung": r.name };
+                for (let i = 0; i < element.length; i++) {
+                    const item = element[i].split(":/:")[0]
+                    line[item] = json[item]
+                }
+                total.push(line);
             }
-            total.push(line);
+        } catch (err) {
+            console.error(`Error processing finding ${r.name} for patient ${patId}:`, err);
         }
 
     }

@@ -1,7 +1,6 @@
 import { db } from '../index';
-import { elexisDateToDateString, normalize, getVersionedResource } from '../util';
+import { elexisDateToDateString, normalize, getVersionedResource, htmlSkeleton } from '../util';
 import fs from 'fs/promises';
-import { existsSync } from 'fs';
 import path from 'path';
 import * as Samdas from '@rgwch/samdastools';
 
@@ -17,14 +16,12 @@ import * as Samdas from '@rgwch/samdastools';
  * @returns 
  */
 export async function extractKons(patId: string, outputDir: string) {
-  const fall_output = path.join(outputDir, "Faelle")
   const cases = await db("faelle").where({ patientid: patId }).whereNot("deleted", "1").select();
   if (cases.length === 0) {
     console.log(`No cases found for patient ${patId}`);
     return;
   }
-  await fs.mkdir(fall_output, { recursive: true });
-
+  let html = "<h1>Konsultationen</h1>\n";
   for (const rcase of cases) {
     const fall = normalize(rcase)
     const kons = await db("behandlungen").where({ fallid: fall.id }).whereNot("deleted", "1").orderBy("datum", "asc").select();
@@ -32,35 +29,29 @@ export async function extractKons(patId: string, outputDir: string) {
       console.log(`No consultations found for case ${fall.id} (${fall.bezeichnung})`);
       continue;
     }
-    let output = path.join(fall_output, `Fall_${fall.bezeichnung || 'unbenannt'}_${elexisDateToDateString(fall.datumvon)}_bis_${elexisDateToDateString(fall.datumbis)}`);
-    await fs.mkdir(output, { recursive: true });
-    let fullext = "<html><head><meta charset=\"UTF-8\"><title>Konsultationen</title></head><body>";
+    html += `<h2>Fall: ${fall.bezeichnung || 'unbenannt'} (${elexisDateToDateString(fall.datumvon)} bis ${elexisDateToDateString(fall.datumbis)})</h2>\n`;
+    html += `<p class="subtitle">Gesetz: ${fall.gesetz || 'unbekannt'}, Grund: ${fall.grund || 'unbekannt'}, Versicherungsnummer: ${fall.versnummer || 'unbekannt'}</p>\n`;
     for (const rk of kons) {
       try {
         const k = normalize(rk)
         const date = k.datum ?? '00000000'
         const bdate = elexisDateToDateString(date)
-        let title = `Konsultation_${bdate}`
-        fullext += `<h2>${title}</h2>\n`
+        let title = `Konsultation vom ${bdate}`
+        html += `<h3>${title}</h3>\n`
         const base64String = Buffer.isBuffer(k.eintrag) ? k.eintrag.toString('base64') : k.eintrag;
         const entry = await getVersionedResource(base64String);
         if (entry) {
-          const html = await Samdas.toHtml(entry);
-          fullext += html + "\n<br/>\n";
+          const entryHtml = await Samdas.toHtml(entry);
+          html += entryHtml + "\n<br/>\n";
         }
       } catch (err) {
         console.error("Error processing kons", rk.id, err);
       }
     }
-    fullext += "</body></html>";
-    const ext = "html"
-    const filepath = path.join(output, "Konsultationen");
-    let i = 2
-    let defpath = filepath
-    while (existsSync(defpath + '.' + ext)) {
-      defpath = filepath + `(${i++})`;
-    }
-    await fs.writeFile(defpath + '.' + ext, fullext);
+
 
   }
+  const filepath = path.join(outputDir, "Konsultationen.html");
+  await fs.writeFile(filepath, htmlSkeleton(`[Konsultationen]`, html));
+
 }
