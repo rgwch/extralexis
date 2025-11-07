@@ -72,9 +72,112 @@ export async function hashmapToJson(mapped: string): Promise<any> {
     return null;
 }
 
+export async function compexExpand(b64: string): Promise<string> {
+    if (!b64 || b64.length === 0) {
+        return "";
+    }
+    const result = await fetch(`${process.env.converter}/compex/expand`, {
+        method: 'POST',
+        body: b64,
+        headers: {
+            'Content-Type': 'text/plain'
+        }
+    });
+    if (result.ok) {
+        const text = await result.text();
+        return Buffer.from(text.trim(), 'base64').toString('utf-8');
+    }
+    console.error("Error expanding compex", result.statusText);
+    return ""
+}
+
 export function makeLabel(pat: any): string {
     const bdate = pat.geburtsdatum ? elexisDateToDateString(pat.geburtsdatum) : 'unknown_date';
     const lastname = pat.bezeichnung1 || "unbekannt"
     const firstname = pat.bezeichnung2 || "unbekannt"
     return lastname + " " + firstname + ", " + bdate
+}
+
+export function htmlSkeleton(title: string, body: string): string {
+    return `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background-color: white;
+}
+
+th {
+    background-color: #3498db;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+}
+
+td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+tr:hover {
+    background-color: #e8f4f8;
+}
+
+.summary {
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.no-data {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 20px;
+}
+    </style>
+</head>
+<body><div class="container">${body}</div></body>
+</html>`;
 }

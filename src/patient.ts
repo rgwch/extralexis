@@ -1,5 +1,5 @@
 import { db } from './index';
-import { elexisDateToDateString, normalize, makeLabel } from './util';
+import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton } from './util';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -60,6 +60,31 @@ export async function extractData(id: string) {
             const patpath = path.join(process.env.output || "./data", dirname);
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
+            let html = `<h1>Patient ${makeLabel(pat)}</h1>\n`;
+            const diags = pat.diagnosen
+            if (diags) {
+                const diagsb64 = Buffer.isBuffer(diags) ? diags.toString('base64') : diags;
+                const dexp = await compexExpand(diagsb64)
+                //console.log("Expanded diagnoses for patient", id, dexp);
+                html += `<h2>Diagnosen</h2>\n`;
+                html += `<pre>${dexp}</pre>\n`;
+            }
+            const pa = pat.persanamnese
+            if (pa) {
+                const pab64 = Buffer.isBuffer(pa) ? pa.toString('base64') : pa;
+                const paexp = await compexExpand(pab64)
+                html += `<h2>Persönliche Anamnese</h2>\n`;
+                html += `<pre>${paexp}</pre>\n`;
+            }
+            const fa = pat.famanamnese
+            if (fa) {
+                const fab64 = Buffer.isBuffer(fa) ? fa.toString('base64') : fa;
+                const faexp = await compexExpand(fab64)
+                html += `<h2>Familienanamnese</h2>\n`;
+                html += `<pre>${faexp}</pre>\n`;
+            }
+            const htmlfile = path.join(patpath, "deckblatt.html");
+            await fs.writeFile(htmlfile, htmlSkeleton(`Patient ${makeLabel(pat)}`, html));
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
