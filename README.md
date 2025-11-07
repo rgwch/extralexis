@@ -13,13 +13,14 @@ At this time, the tool copies
 * encounter texts
 * lab values
 * vaccinations
+* findings (from the original "Befunde"-plugin)
 
 But you can easily add extractors for your own Elexis-plugins.
 
 ## Prerequisites
 
 * Node 22
-* Java 17 (Only if you want to export encounter texts)
+* Java 17 (If you want to export encounter texts or findings)
 
 ## Install
 
@@ -28,16 +29,19 @@ git clone https://github.com/rgwch/extralexis
 cd extralexis
 npm i
 ```
-then, copy .env.copy to .env and change the values to match your own system
+then, copy .env.copy to .env and change the values to match your own system.
 
 ## Usage
 
-If you want to extract encounter texts (i.e. you have included "kons" in the handlers list in .env), then you need to launch the elexis converter service to convert the VersionedResource/Samdas entries to html:
+### Helper Service
+If you want to extract encounter texts or findings (i.e. you have included "kons" and/or "befunde" in the handlers list in .env), then you need to launch the elexis converter service to convert the VersionedResource/Samdas entries and the to html and the elexisbefunde-entries to json:
 
 * Make sure you have installed java17
 * run java -jar elexis_converter_x.x.x.jar
 
-Then, build the program with `npm run build`
+### Main program
+
+Build the program with `npm run build`
 
 and launch with `node dist/index.js <options>`
 
