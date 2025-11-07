@@ -1,5 +1,5 @@
 import { db } from './index';
-import { elexisDateToDateString, normalize } from './util';
+import { elexisDateToDateString, normalize, makeLabel } from './util';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -63,7 +63,7 @@ export async function extractData(id: string) {
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
-                await extractFindings(id, patpath);
+                await extractFindings(id, makeLabel(pat), patpath);
             }
             if (handlers.includes("omnivore")) {
                 const { extractOmnivore } = await import('./plugins/omnivore');

@@ -72,3 +72,9 @@ export async function hashmapToJson(mapped: string): Promise<any> {
     return null;
 }
 
+export function makeLabel(pat: any): string {
+    const bdate = pat.geburtsdatum ? elexisDateToDateString(pat.geburtsdatum) : 'unknown_date';
+    const lastname = pat.bezeichnung1 || "unbekannt"
+    const firstname = pat.bezeichnung2 || "unbekannt"
+    return lastname + " " + firstname + ", " + bdate
+}

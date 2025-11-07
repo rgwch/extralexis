@@ -10,7 +10,7 @@ import { elexisDateToDateString, normalize, hashmapToJson } from '../util';
  * @param outputDir 
  * @returns 
  */
-export async function extractFindings(patId: string, outputDir: string) {
+export async function extractFindings(patId: string, patLabel:string, outputDir: string) {
     const setup = await db("elexisbefunde").where({ id: "__SETUP__" }).select();
     const setupb64 = Buffer.isBuffer(setup[0].befunde) ? setup[0].befunde.toString('base64') : setup[0].befunde;
     const setupjson = await hashmapToJson(setupb64);
@@ -47,7 +47,7 @@ export async function extractFindings(patId: string, outputDir: string) {
     }
 
     // Write JSON file
-    const fileName = `befunde_${patId}.json`;
+    const fileName = `befunde.json`;
     const filePath = path.join(output, fileName);
     await fs.writeFile(filePath, JSON.stringify(total, null, 2));
 
@@ -114,11 +114,15 @@ export async function extractFindings(patId: string, outputDir: string) {
     }
 
     // Generate HTML report
-    const htmlFileName = `befunde_${patId}_report.html`;
+    const htmlFileName = "Befunde.html";
     const htmlFilePath = path.join(output, htmlFileName);
 
+    // Read CSS from external file
+    const cssFilePath = path.join(__dirname, '..', 'default.css');
+    const cssContent = await fs.readFile(cssFilePath, 'utf-8');
+
     // Get patient info for the title (using patId for now)
-    const patientInfo = patId; // You might want to get actual patient name here
+    const patientInfo = patLabel; // You might want to get actual patient name here
 
     let htmlContent = `<!DOCTYPE html>
 <html lang="de">
@@ -127,73 +131,14 @@ export async function extractFindings(patId: string, outputDir: string) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Befunde Bericht - ${patientInfo}</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-            background-color: white;
-        }
-        th {
-            background-color: #3498db;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-        }
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #ddd;
-        }
-        tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        tr:hover {
-            background-color: #e8f4f8;
-        }
-        .summary {
-            background-color: #ecf0f1;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .no-data {
-            text-align: center;
-            color: #7f8c8d;
-            font-style: italic;
-            padding: 20px;
-        }
+        ${cssContent}
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📋 Befunde Bericht</h1>
         <div class="summary">
-            <strong>Patient ID:</strong> ${patientInfo}<br>
+            <strong>Patient:</strong> ${patientInfo}<br>
             <strong>Erstellt am:</strong> ${new Date().toLocaleDateString('de-DE')}<br>
             <strong>Anzahl Befund-Typen:</strong> ${groupedByBezeichnung.size}<br>
             <strong>Gesamtanzahl Befunde:</strong> ${total.length}
