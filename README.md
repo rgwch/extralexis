@@ -29,7 +29,7 @@ git clone https://github.com/rgwch/extralexis
 cd extralexis
 npm i
 ```
-then, copy .env.copy to .env and change the values to match your own system.
+then, copy .env.copy to .env and change the values to match your own system and the datatypes you want to include in the export.
 
 ## Usage
 
@@ -52,5 +52,5 @@ where possible options are:
 * -p x or --patid x: extract only patient with PatientNr x
 * -a or --all: extraxt all patients (can take very long time)
 
-After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient.
+After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data are in .json, .csv, or .html format, as appropriate,
 
