@@ -1,5 +1,6 @@
 import { db } from '../index';
 import { elexisDateToDateString, normalize, getVersionedResource, htmlSkeleton } from '../util';
+import { htmlToPdf } from '../pdf';
 import fs from 'fs/promises';
 import path from 'path';
 import * as Samdas from '@rgwch/samdastools';
@@ -53,5 +54,5 @@ export async function extractKons(patId: string, outputDir: string) {
   }
   const filepath = path.join(outputDir, "Konsultationen.html");
   await fs.writeFile(filepath, htmlSkeleton(`[Konsultationen]`, html));
-
+  await htmlToPdf(filepath, path.join(outputDir, "Konsultationen.pdf"));
 }

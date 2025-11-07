@@ -86,6 +86,14 @@ export async function extractData(id: string) {
                 html += `<h2>Familienanamnese</h2>\n`;
                 html += `<pre>${faexp}</pre>\n`;
             }
+            if (pat.allergien) {
+                html += `<h2>Allergien</h2>\n`;
+                html += `<pre>${pat.allergien}</pre>\n`;
+            }
+            if (pat.risiken) {
+                html += `<h2>Risiken</h2>\n`;
+                html += `<pre>${pat.risiken}</pre>\n`;
+            }
             if (pat.bemerkung) {
                 html += `<h2>Bemerkung</h2>\n`;
                 html += `<pre>${pat.bemerkung}</pre>\n`;
@@ -97,6 +105,7 @@ export async function extractData(id: string) {
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
                 await extractFindings(id, makeLabel(pat), patpath);
+                await fs.copyFile(path.join(patpath, "Befunde", "Befunde.pdf"), path.join(patpath, "Befunde.pdf"));
             }
             if (handlers.includes("omnivore")) {
                 const { extractOmnivore } = await import('./plugins/omnivore');
