@@ -1,26 +1,26 @@
-# Extralexis - Extract data from elexis
+# Extralexis - Extract data from Elexis
 
-This tool is for doctors using the [Elexis](http://www.elexis.ch) EMR system, who are giving up their medical practice. It extracts relevant data of the patients into separate directories in human readable form. 
-Such directories can easily be copied on a stick or burned on a CD to hand them out directly to the patient.
+This tool is for doctors using the [Elexis](http://www.elexis.ch) EMR system who are closing their medical practice. It extracts relevant patient data into separate directories in human-readable form. 
+These directories can easily be copied to a USB stick or burned to a CD to hand them out directly to the patient.
 
-You can also use this tool to extract only one patient - e.g. someone who changes the doctor.
+You can also use this tool to extract data for only one patient - e.g., someone who is changing doctors.
 
-At this time, the tool copies 
+Currently, the tool extracts:
 
-* Patient's personal details
-* outgoing letters
-* incoming documents from omnivore and lucinda
-* encounter texts
-* lab values
-* vaccinations
-* findings (from the original "Befunde"-plugin)
+* Patient personal details
+* Outgoing letters
+* Incoming documents from Omnivore and Lucinda
+* Encounter texts
+* Lab values
+* Vaccinations
+* Findings (from the original "Befunde" plugin)
 
-But you can easily add extractors for your own Elexis-plugins.
+You can easily add extractors for your own Elexis plugins.
 
 ## Prerequisites
 
 * Node 22
-* Java 17 (If you want to export encounter texts or findings)
+* Java 17 
 
 ## Install
 
@@ -29,31 +29,32 @@ git clone https://github.com/rgwch/extralexis
 cd extralexis
 npm i
 ```
-then, copy .env.copy to .env and change the values to match your own system and the datatypes you want to include in the export.
+Then, copy .env.copy to .env and change the values to match your own system and the data types you want to include in the export.
 
 ## Usage
 
 ### Helper Service
-If you want to extract encounter texts or findings (i.e. you have included "kons" and/or "befunde" in the handlers list in .env), then you need to launch the elexis converter service to convert the VersionedResource/Samdas entries and the to html and the elexisbefunde-entries to json:
 
-* Make sure you have installed java17
-* run java -jar elexis_converter_x.x.x.jar
+Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format.
+
+* Make sure you have installed Java 17
+* Run `java -jar elexis_converter_x.x.x.jar`
 
 ### Main program
 
 Build the program with `npm run build`
 
-and launch with `node dist/index.js <options>`
+and launch it with `node dist/index.js <options>`
 
 where possible options are:
 
-* -s x or --skip x: start with x'th patient
-* -n  x or --number x: extract x patients (starting from -s)
-* -p x or --patid x: extract only patient with PatientNr x
-* -a or --all: extraxt all patients (can take very long time)
+* -s x or --skip x: start with the x-th patient
+* -n x or --number x: extract x patients (starting from -s)
+* -p x or --patid x: extract only the patient with PatientNr x
+* -a or --all: extract all patients (can take a very long time)
 
-After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data are in .json, .csv, .html, or .pdf format, as appropriate,
+After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data is provided in .json, .csv, .html, or .pdf format, as appropriate.
 
-### Troubleshoot
+### Troubleshooting
 
-In newer Ubuntu distros, pdf generation will fail because puppetteer can't launch its unsecure chrome browser. You can disable that temporarily  with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
+In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
