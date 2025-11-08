@@ -7,6 +7,8 @@
     "single": "tsc && NODE_ENV=debug node ./dist/index.js -p 2",
     "build": "tsc && cp src/default.css dist/default.css",
     "start": "tsc && NODE_ENV=production node ./dist/index.js",
+    "generate-html": "npx ts-node generate-lab-html.ts",
+    "generate-pdf": "npx ts-node generate-lab-pdf.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

@@ -3,6 +3,8 @@ import path from "path"
 import fs from "fs/promises"
 import { existsSync } from 'fs';
 import { elexisDateToDateString, normalize } from '../util';
+import { generateLabResultsHTML } from './lab-html';
+import { generateLabResultsPdf } from './lab-pdf';
 
 /**
  * Lab results are stored in the "laborwerte" table, linked to "laboritems" for metadata.
@@ -63,6 +65,27 @@ export async function extractLabresults(patId: string, outputDir: string) {
 
         const csvContent = csvHeader + csvRows;
         await fs.writeFile(csvFilePath, csvContent);
+
+        // Also generate HTML table
+        const htmlFileName = `labor_${patId}.html`;
+        const htmlFilePath = path.join(output, htmlFileName);
+        await generateLabResultsHTML(filePath, htmlFilePath);
+        
+        // Generate PDF from HTML
+        const pdfFileName = `labor_${patId}.pdf`;
+        const pdfFilePath = path.join(output, pdfFileName);
+        await generateLabResultsPdf(htmlFilePath, pdfFilePath, {
+            format: 'A3',
+            orientation: 'landscape',
+            margins: {
+                top: '5mm',
+                right: '3mm',
+                bottom: '5mm',
+                left: '3mm'
+            }
+            // Scale is auto-calculated based on number of columns
+        });
+
     } catch (error) {
         console.error(`Error extracting lab results for patient ${patId}:`, error);
     }
