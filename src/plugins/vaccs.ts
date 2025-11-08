@@ -1,7 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, normalize } from '../util';
+import { elexisDateToDateString, normalize, htmlSkeleton, displayDateToDate } from '../util';
+import { htmlToPdf } from '../pdf';
 
 /**
  * Vaccinations are stored in the "at_medevit_elexis_impfplan" table. 
@@ -19,11 +20,18 @@ export async function extractVaccinations(patId: string, outputDir: string) {
     const output = path.join(outputDir, "Impfungen");
     await fs.mkdir(output, { recursive: true });
 
-    const total = []
+    const totalRaw = []
     for (const v of vaccs) {
         const r = normalize(v)
-        total.push({ "Datum": elexisDateToDateString(r.dateofadministration), "Impfung": r.vaccagainst, "Charge": r.lotnr, "Impfstoff": r.businessname, "ATCCode": r.atccode })
+        totalRaw.push({ "Datum": elexisDateToDateString(r.dateofadministration), "Impfung": r.vaccagainst, "Charge": r.lotnr, "Impfstoff": r.businessname, "ATCCode": r.atccode })
     }
+
+    // order totatRaw by date descending
+    const total = totalRaw.sort((a, b) => {
+        const dateA = displayDateToDate(a.Datum);
+        const dateB = displayDateToDate(b.Datum);
+        return dateB.getTime() - dateA.getTime();
+    });
 
     // Write JSON file
     const fileName = `impfungen_${patId}.json`;
@@ -57,6 +65,16 @@ export async function extractVaccinations(patId: string, outputDir: string) {
         ].join(',');
     }).join('\n');
 
+
     const csvContent = csvHeader + csvRows;
     await fs.writeFile(csvFilePath, csvContent);
+    let html = "<table><tr><th>Datum</th><th>Impfung</th><th>Charge</th><th>Impfstoff</th><th>ATCCode</th></tr>";
+    for (const row of total) {
+        html += `<tr><td>${row.Datum}</td><td>${row.Impfung}</td><td>${row.Charge}</td><td>${row.Impfstoff}</td><td>${row.ATCCode}</td></tr>`;
+    }
+    html += "</table>";
+    const htmlFile = path.join(output, "Impfungen.html")
+    await fs.writeFile(htmlFile, htmlSkeleton("Impfungen",html));
+    await htmlToPdf(htmlFile, path.join(outputDir, "Impfungen.pdf"));
+    console.log(`Extracted ${vaccs.length} vaccinations for patient ${patId}`);
 }

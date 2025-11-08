@@ -52,5 +52,8 @@ where possible options are:
 * -p x or --patid x: extract only patient with PatientNr x
 * -a or --all: extraxt all patients (can take very long time)
 
-After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data are in .json, .csv, or .html format, as appropriate,
+After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data are in .json, .csv, .html, or .pdf format, as appropriate,
 
+### Troubleshoot
+
+In newer Ubuntu distros, pdf generation will fail because puppetteer can't launch its unsecure chrome browser. You can disable that temporarily  with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`

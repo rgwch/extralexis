@@ -220,6 +220,6 @@ export async function extractFindings(patId: string, patLabel: string, outputDir
 </html>`;
 
     await fs.writeFile(htmlFilePath, htmlContent);
-    await htmlToPdf(htmlFilePath, path.join(output, "Befunde.pdf"));
+    await htmlToPdf(htmlFilePath, path.join(outputDir, "Befunde.pdf"));
 
 }

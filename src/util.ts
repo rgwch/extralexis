@@ -27,6 +27,15 @@ export function isoDateToElexisDate(isoDate: string): string {
     return isoDate.replace(/-/g, '');
 }
 
+export function displayDateToDate(displayDate: string): Date {
+    // Display date format is DD.MM.YYYY
+    if (!/^\d{2}\.\d{2}\.\d{4}$/.test(displayDate)) {
+        throw new Error(`Invalid display date format: ${displayDate}`);
+    }
+    const [day, month, year] = displayDate.split('.');
+    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+}   
+
 export function normalize(p: any) {
     for (const key in p) {
         if (p[key] === null) {

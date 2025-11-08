@@ -98,14 +98,13 @@ export async function extractData(id: string) {
                 html += `<h2>Bemerkung</h2>\n`;
                 html += `<pre>${pat.bemerkung}</pre>\n`;
             }
-            const htmlfile = path.join(patpath, "deckblatt.html");
+            const htmlfile = path.join(patpath, "Deckblatt.html");
             await fs.writeFile(htmlfile, htmlSkeleton(`[${pat.patientnr}] - ${makeLabel(pat)}`, html));
-            await htmlToPdf(htmlfile, path.join(patpath, "deckblatt.pdf"));
+            await htmlToPdf(htmlfile, path.join(patpath, "Deckblatt.pdf"));
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
                 await extractFindings(id, makeLabel(pat), patpath);
-                await fs.copyFile(path.join(patpath, "Befunde", "Befunde.pdf"), path.join(patpath, "Befunde.pdf"));
             }
             if (handlers.includes("omnivore")) {
                 const { extractOmnivore } = await import('./plugins/omnivore');
@@ -131,6 +130,19 @@ export async function extractData(id: string) {
                 const { extractVaccinations } = await import('./plugins/vaccs');
                 await extractVaccinations(id, patpath);
             }
+            await fs.mkdir(path.join(patpath, "Rohdaten")).catch(() => {
+                console.warn("Rohdaten folder probably exists already, skipping creation.");
+            });
+            await fs.rename(path.join(patpath, "info.json"), path.join(patpath, "Rohdaten", "info.json"));
+            await fs.rename(path.join(patpath, "Deckblatt.html"), path.join(patpath, "Rohdaten", "Deckblatt.html"));
+            await fs.rename(path.join(patpath, "Konsultationen.html"), path.join(patpath, "Rohdaten", "Konsultationen.html"))
+            await fs.rename(path.join(patpath, "Befunde"), path.join(patpath, "Rohdaten", "Befunde")).catch(() => {
+                console.warn("Befunde folder probably does not exist, skipping moving it to Rohdaten.");
+            })
+            await fs.rename(path.join(patpath, "Impfungen"), path.join(patpath, "Rohdaten", "Impfungen")).catch(() => {
+                console.warn("Impfungen folder probably does not exist, skipping moving it to Rohdaten.");
+            })
+            console.log(`Extraction completed for patient id ${id} at ${patpath}`);
         }
     } catch (err) {
         console.error("Error extracting data for patient id", id, err);
