@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsc && NODE_ENV=debug node ./dist/index.js",
-    "single": "tsc && NODE_ENV=debug node ./dist/index.js -p 3411",
+    "single": "tsc && NODE_ENV=debug node ./dist/index.js -p 2",
     "build": "tsc && cp src/default.css dist/default.css",
     "start": "tsc && NODE_ENV=production node ./dist/index.js",
     "generate-html": "npx ts-node generate-lab-html.ts",
