@@ -72,8 +72,8 @@ export async function extractLabresults(patId: string, outputDir: string) {
         await generateLabResultsHTML(filePath, htmlFilePath);
         
         // Generate PDF from HTML
-        const pdfFileName = `labor_${patId}.pdf`;
-        const pdfFilePath = path.join(output, pdfFileName);
+        const pdfFileName = `Labor.pdf`;
+        const pdfFilePath = path.join(outputDir, pdfFileName);
         await generateLabResultsPdf(htmlFilePath, pdfFilePath, {
             format: 'A3',
             orientation: 'landscape',
