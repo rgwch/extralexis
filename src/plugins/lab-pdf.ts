@@ -33,7 +33,7 @@ export async function generateLabResultsPdf(htmlFilePath: string, outputPdfPath:
     };
 
     const finalOptions = { ...defaultOptions, ...options };
-    
+
     // Ensure output directory exists
     const outputDir = path.dirname(outputPdfPath);
     await fs.mkdir(outputDir, { recursive: true });
@@ -45,27 +45,27 @@ export async function generateLabResultsPdf(htmlFilePath: string, outputPdfPath:
 
     try {
         const page = await browser.newPage();
-        
+
         // Set viewport for better rendering of wide tables
         await page.setViewport({ width: 2000, height: 1400 });
-        
+
         // Read and modify HTML for better PDF rendering
         const htmlContent = await fs.readFile(htmlFilePath, 'utf-8');
         const { scale: calculatedScale } = calculateColumnWidth(htmlContent);
-        
+
         // Use calculated scale if not explicitly overridden
         if (!options.scale) {
             finalOptions.scale = calculatedScale;
         }
-        
+
         const enhancedHtml = enhanceHtmlForPdf(htmlContent);
-        
+
         // Write enhanced HTML to temporary file
         const tempHtmlPath = path.join(process.cwd(), `temp_${Date.now()}.html`);
         await fs.writeFile(tempHtmlPath, enhancedHtml);
-        
+
         // Load the page
-        await page.goto(`file://${tempHtmlPath}`, { 
+        await page.goto(`file://${tempHtmlPath}`, {
             waitUntil: 'networkidle0',
             timeout: 30000
         });
@@ -83,9 +83,9 @@ export async function generateLabResultsPdf(htmlFilePath: string, outputPdfPath:
 
         // Clean up temp file
         await fs.unlink(tempHtmlPath);
-        
+
         console.log(`PDF generated successfully: ${outputPdfPath}`);
-        
+
     } catch (error) {
         console.error('Error generating PDF:', error);
         throw error;
@@ -101,12 +101,12 @@ function calculateColumnWidth(htmlContent: string): { dateWidth: string, scale: 
     // Count date columns by looking for date-header classes
     const dateHeaderMatches = htmlContent.match(/class="date-header"/g);
     const dateColumnCount = dateHeaderMatches ? dateHeaderMatches.length : 0;
-    
+
     // Fixed columns take roughly 260px (120+60+80)
     // A3 landscape at 0.7 scale has roughly 1000px usable width
     const availableWidth = 1000 - 260;
     const dateWidth = Math.max(20, Math.floor(availableWidth / dateColumnCount));
-    
+
     // If we need very narrow columns, reduce scale further
     let scale = 0.7;
     if (dateWidth < 25) {
@@ -115,7 +115,7 @@ function calculateColumnWidth(htmlContent: string): { dateWidth: string, scale: 
     if (dateWidth < 20) {
         scale = 0.5;
     }
-    
+
     return {
         dateWidth: `${dateWidth}px`,
         scale
@@ -128,7 +128,7 @@ function calculateColumnWidth(htmlContent: string): { dateWidth: string, scale: 
 function enhanceHtmlForPdf(htmlContent: string): string {
     // Calculate optimal column widths
     const { dateWidth, scale } = calculateColumnWidth(htmlContent);
-    
+
     // Add PDF-specific CSS for better page breaks and printing
     const pdfStyles = `
     <style type="text/css" media="print">
@@ -263,17 +263,17 @@ function enhanceHtmlForPdf(htmlContent: string): string {
         }
     </style>
     `;
-    
+
     // Insert PDF styles before closing head tag
     const enhancedHtml = htmlContent.replace('</head>', pdfStyles + '</head>');
-    
+
     // Add footer
     const footerHtml = `
     <div class="pdf-footer">
         Laborergebnisse - Generiert am ${new Date().toLocaleDateString('de-DE')}
     </div>
     `;
-    
+
     return enhancedHtml.replace('</body>', footerHtml + '</body>');
 }
 
@@ -282,11 +282,11 @@ function enhanceHtmlForPdf(htmlContent: string): string {
  */
 export async function generateLabPdfFromJson(jsonFilePath: string, outputPdfPath: string, options: PdfOptions = {}): Promise<void> {
     const { generateLabResultsHTML } = await import('./lab-html');
-    
+
     // Generate temporary HTML file
     const tempHtmlPath = jsonFilePath.replace('.json', '_temp.html');
     await generateLabResultsHTML(jsonFilePath, tempHtmlPath);
-    
+
     try {
         // Generate PDF from HTML
         await generateLabResultsPdf(tempHtmlPath, outputPdfPath, options);
@@ -305,20 +305,20 @@ export async function generateLabPdfFromJson(jsonFilePath: string, outputPdfPath
  */
 export async function batchGenerateLabPdfs(inputDir: string, options: PdfOptions = {}): Promise<void> {
     const laborDir = path.join(inputDir, 'Labor');
-    
+
     try {
         const files = await fs.readdir(laborDir);
         const jsonFiles = files.filter(file => file.endsWith('.json'));
-        
+
         for (const jsonFile of jsonFiles) {
             const jsonPath = path.join(laborDir, jsonFile);
             const pdfFile = jsonFile.replace('.json', '.pdf');
             const pdfPath = path.join(laborDir, pdfFile);
-            
+
             console.log(`Converting ${jsonFile} to PDF...`);
             await generateLabPdfFromJson(jsonPath, pdfPath, options);
         }
-        
+
         console.log(`Successfully converted ${jsonFiles.length} files to PDF`);
     } catch (error) {
         console.error('Error in batch PDF generation:', error);
