@@ -58,3 +58,7 @@ After processing, there will be a subdirectory in the directory declared with "o
 ### Troubleshooting
 
 In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
+
+## Acknowledgement
+
+Parts of this program were created or improved by Github Copilot (Claude Sonnet 4).
