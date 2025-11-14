@@ -102,6 +102,10 @@ export async function extractData(id: string) {
             await fs.writeFile(htmlfile, htmlSkeleton(`[${pat.patientnr}] - ${makeLabel(pat)}`, html));
             await htmlToPdf(htmlfile, path.join(patpath, "Deckblatt.pdf"));
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
+            if (handlers.includes("medication")) {
+                const { extractMedication } = await import("./plugins/medication")
+                await extractMedication(id, patpath);
+            }
             if (handlers.includes("befunde")) {
                 const { extractFindings } = await import('./plugins/befunde');
                 await extractFindings(id, makeLabel(pat), patpath);
