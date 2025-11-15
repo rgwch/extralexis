@@ -121,7 +121,8 @@ export async function extractData(id: string) {
             if (handlers.includes("kons")) {
                 const { extractKons } = await import('./plugins/kons');
                 await extractKons(id, patpath);
-            }
+                await fs.rename(path.join(patpath, "Konsultationen.html"), path.join(patpath, "Rohdaten", "Konsultationen.html"))
+           }
             if (handlers.includes("lucinda")) {
                 const { extractLucinda } = await import('./plugins/lucinda');
                 await extractLucinda(`${pat.bezeichnung1}_${pat.bezeichnung2}_${elexisDateToDateString(pat.geburtsdatum)} `, patpath);
@@ -139,7 +140,6 @@ export async function extractData(id: string) {
             });
             await fs.rename(path.join(patpath, "info.json"), path.join(patpath, "Rohdaten", "info.json"));
             await fs.rename(path.join(patpath, "Deckblatt.html"), path.join(patpath, "Rohdaten", "Deckblatt.html"));
-            await fs.rename(path.join(patpath, "Konsultationen.html"), path.join(patpath, "Rohdaten", "Konsultationen.html"))
             await fs.rename(path.join(patpath, "Befunde"), path.join(patpath, "Rohdaten", "Befunde")).catch(() => {
                 console.warn("Befunde folder probably does not exist, skipping moving it to Rohdaten.");
             })

@@ -9,14 +9,13 @@ export function elexisDateToISODate(elexisDate: string): string {
     return `${year}-${month}-${day}`;
 }
 export function elexisDateToDateString(elexisDate: string): string {
-    // Elexis date format is YYYYMMDD
-    if (!/^\d{8}$/.test(elexisDate)) {
-        return '0000-00-00';
+    if (/^\d{8,14}$/.test(elexisDate)) {
+        const year = elexisDate.slice(0, 4);
+        const month = elexisDate.slice(4, 6);
+        const day = elexisDate.slice(6, 8);
+        return `${day}.${month}.${year}`;
     }
-    const year = elexisDate.slice(0, 4);
-    const month = elexisDate.slice(4, 6);
-    const day = elexisDate.slice(6, 8);
-    return `${day}.${month}.${year}`;
+    return '0000-00-00';
 }
 
 export function isoDateToElexisDate(isoDate: string): string {
@@ -34,7 +33,7 @@ export function displayDateToDate(displayDate: string): Date {
     }
     const [day, month, year] = displayDate.split('.');
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-}   
+}
 
 export function normalize(p: any) {
     for (const key in p) {
