@@ -35,6 +35,39 @@ export async function getPatientById(id: string) {
     }
 }
 
+export async function extractDataByPatData(descr: string) {
+    try {
+        const { lastname, firstname, birthdate } = (() => {
+            const parts = descr.split(",").map(p => p.trim());
+            const lastname = parts[0] || "";
+            let firstname = "";
+            let birthdate = "";
+            if (parts.length > 1) {
+                const subparts = parts[1].split(" ").map(sp => sp.trim());
+                firstname = subparts[0] || "";
+                if (subparts.length > 1) {
+                    birthdate = subparts[1] || "";
+                }
+            }
+            return { lastname, firstname, birthdate };
+        })();
+        const constraints = {}
+        if (lastname) constraints['bezeichnung1'] = lastname
+        if (firstname) constraints['bezeichnung2'] = firstname
+        if (birthdate) constraints['geburtsdatum'] = birthdate
+        const pats = await db("kontakt")
+            .where(constraints)
+            .select("id")
+            .timeout(3000, { cancel: true }) // 3 second timeout
+        for (const pat of pats) {
+            return extractData(pat.id);
+        }
+    } catch (err) {
+        console.error("Error in extractDataByPatName:", err);
+        throw err;
+    }
+}
+
 export async function extractDataByPatNumber(patnumber: string) {
     try {
         const pat = await db("kontakt")
