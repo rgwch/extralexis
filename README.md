@@ -61,6 +61,10 @@ After processing, there will be a subdirectory in the directory declared with "o
 
 In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
 
+### Wrapper
+
+For Linux and Mac Systems, there's a simple wrapper to launch the converter, modify AppArmor and export: `./run.sh -p 1234` will launch the converter service, set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, reset the AppArmor restrictions to 1, and stop the java service. 
+
 ## Acknowledgement
 
 Parts of this program were created or improved by Github Copilot (Claude Sonnet 4).
