@@ -2,13 +2,14 @@ import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
 import { elexisDateToDateString, elexisDateToISODate, normalize, htmlSkeleton, hashmapToJson } from '../util';
+import { htmlToPdf } from '../pdf';
 
 export async function extractMedication(patId: string, outputDir: string) {
     const output = path.join(outputDir, "Medikation");
     await fs.mkdir(output, { recursive: true });
 
     try {
-        const meds: Array<any> = await db("patient_artikel_joint").where({ deleted: "0", patientid: patId }).orderBy("datefrom","asc")
+        const meds: Array<any> = await db("patient_artikel_joint").where({ deleted: "0", patientid: patId }).orderBy("datefrom", "asc")
         const all = []
         for (const med of meds) {
             let prescription: any = {}
@@ -21,7 +22,7 @@ export async function extractMedication(patId: string, outputDir: string) {
                 if (!art || art.length == 0) {
                     art = await db("artikel").where({ id: ident[ident.length - 1] })
                 }
-   
+
             } else {
                 continue;
             }
@@ -37,6 +38,17 @@ export async function extractMedication(patId: string, outputDir: string) {
         const fileName = `medications.json`;
         const filePath = path.join(output, fileName);
         await fs.writeFile(filePath, JSON.stringify(all, null, 2));
+        let html = "<table><tr><th>Startdatum</th><th>Medikament</th><th>Enddatum</th><th>Dosis</th><th>Typ</th></tr>";
+        for (const row of all) {
+            html += `<tr><td>${row.dateFrom}</td><td>${row.name}</td><td>${row.dateUntil}</td><td>${row.dosis}</td><td>${row.presctype}</td></tr>`;
+        }
+        html += "</table>";
+        const htmlFile = path.join(output, "Medikamente.html")
+        await fs.writeFile(htmlFile, htmlSkeleton("Medikamente", html));
+        await htmlToPdf(htmlFile, path.join(outputDir, "Medikamente.pdf"));
+        console.log(`Extracted ${all.length} medications for patient ${patId}`);
+
+
     } catch (err) {
         console.log(err)
     }
