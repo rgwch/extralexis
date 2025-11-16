@@ -44,6 +44,18 @@ program
             } finally {
                 await db.destroy();
             }
+            try {
+                const response = await fetch(`${process.env.converter}/extinfo/debug`, {
+                    method: 'GET',
+                });
+                if (response.ok) {
+                    console.log('Converter service connection successful');
+                } else {
+                    console.error('Converter service connection failed:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Converter service connection failed:', error);
+            }
         } else if (options.data) {
             extractDataByPatData(options.data).then(async () => {
                 await db.destroy();
