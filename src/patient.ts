@@ -61,7 +61,7 @@ export async function extractData(id: string) {
             const patpath = path.join(process.env.output || "./data", dirname);
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
-            let html = `<h1>[${pat.patientnr}] - ${makeLabel(pat)}</h1>\n` +
+            let html = `<p>KG Nummer: ${pat.patientnr}</p>\n` +
                 `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1}, ${pat.email}</pre></div>\n`;
 
             const diags = pat.diagnosen
@@ -99,7 +99,7 @@ export async function extractData(id: string) {
                 html += `<pre>${pat.bemerkung}</pre>\n`;
             }
             const htmlfile = path.join(patpath, "Deckblatt.html");
-            await fs.writeFile(htmlfile, htmlSkeleton(`[${pat.patientnr}] - ${makeLabel(pat)}`, html));
+            await fs.writeFile(htmlfile, htmlSkeleton(pat, `[${pat.patientnr}] - ${makeLabel(pat)}`, html));
             await htmlToPdf(htmlfile, path.join(patpath, "Deckblatt.pdf"));
             await fs.mkdir(path.join(patpath, "Rohdaten")).catch(() => {
                 console.warn("Rohdaten folder probably exists already, skipping creation.");

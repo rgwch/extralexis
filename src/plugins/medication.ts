@@ -78,7 +78,7 @@ export async function extractMedication(pat: any, outputDir: string) {
         htmlFix += "</table>";
         htmlOther += "</table>";
         const htmlFile = path.join(output, "Medikamente.html")
-        await fs.writeFile(htmlFile, htmlSkeleton("Medikamente", htmlFix + htmlOther));
+        await fs.writeFile(htmlFile, htmlSkeleton(pat, "Medikamente", htmlFix + htmlOther));
         await htmlToPdf(htmlFile, path.join(outputDir, "Medikamente.pdf"));
         console.log(`Extracted ${all.length} medications for patient ${pat.id}`);
 

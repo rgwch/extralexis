@@ -53,6 +53,6 @@ export async function extractKons(pat: any, outputDir: string) {
 
   }
   const filepath = path.join(outputDir, "Konsultationen.html");
-  await fs.writeFile(filepath, htmlSkeleton(`[Konsultationen]`, html));
+  await fs.writeFile(filepath, htmlSkeleton(pat, `[Konsultationen]`, html));
   await htmlToPdf(filepath, path.join(outputDir, "Konsultationen.pdf"));
 }

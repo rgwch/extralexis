@@ -106,7 +106,8 @@ export function makeLabel(pat: any): string {
     return lastname + " " + firstname + ", " + bdate
 }
 
-export function htmlSkeleton(title: string, body: string): string {
+export function htmlSkeleton(patient: any, title: string, body: string): string {
+    const patientLabel = makeLabel(patient);
     return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -195,8 +196,13 @@ tr:hover {
     font-style: italic;
     padding: 20px;
 }
+.label {
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
     </style>
 </head>
-<body><div class="container">${body}</div></body>
+<body><div class="container"><p class="label">${patientLabel}</p>${body}</div></body>
 </html>`;
 }

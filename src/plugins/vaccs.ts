@@ -74,7 +74,7 @@ export async function extractVaccinations(pat: any, outputDir: string) {
     }
     html += "</table>";
     const htmlFile = path.join(output, "Impfungen.html")
-    await fs.writeFile(htmlFile, htmlSkeleton("Impfungen", html));
+    await fs.writeFile(htmlFile, htmlSkeleton(pat, "Impfungen", html));
     await htmlToPdf(htmlFile, path.join(outputDir, "Impfungen.pdf"));
     console.log(`Extracted ${vaccs.length} vaccinations for patient ${pat.id}`);
 }
