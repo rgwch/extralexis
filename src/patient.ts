@@ -39,28 +39,28 @@ export async function extractDataByPatData(descr: string) {
     try {
         const { lastname, firstname, birthdate } = (() => {
             const parts = descr.split(",").map(p => p.trim());
-            const lastname = parts[0] || "";
-            let firstname = "";
-            let birthdate = "";
-            if (parts.length > 1) {
-                const subparts = parts[1].split(" ").map(sp => sp.trim());
-                firstname = subparts[0] || "";
-                if (subparts.length > 1) {
-                    birthdate = subparts[1] || "";
-                }
-            }
-            return { lastname, firstname, birthdate };
+            return { lastname: parts[0], firstname: parts[1] || "", birthdate: parts[2] || "" };
         })();
+        let birthdateFormatted = birthdate;
+        if (birthdate && birthdate.includes(".")) {
+            const bdparts = birthdate.split(".").map(p => p.trim());
+            if (bdparts.length === 3) {
+                const day = bdparts[0].padStart(2, '0');
+                const month = bdparts[1].padStart(2, '0');
+                const year = bdparts[2];
+                birthdateFormatted = `${year}${month}${day}`;
+            }
+        }
         const constraints = {}
         if (lastname) constraints['bezeichnung1'] = lastname
         if (firstname) constraints['bezeichnung2'] = firstname
-        if (birthdate) constraints['geburtsdatum'] = birthdate
+        if (birthdate) constraints['geburtsdatum'] = birthdateFormatted
         const pats = await db("kontakt")
             .where(constraints)
             .select("id")
             .timeout(3000, { cancel: true }) // 3 second timeout
         for (const pat of pats) {
-            return extractData(pat.id);
+            await extractData(pat.id);
         }
     } catch (err) {
         console.error("Error in extractDataByPatName:", err);

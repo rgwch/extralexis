@@ -1,6 +1,6 @@
 import "dotenv/config"
 import knex from 'knex';
-import { getPatients, extractData, extractDataByPatNumber, getTotalPatientCount } from './patient';
+import { getPatients, extractData, extractDataByPatNumber, getTotalPatientCount, extractDataByPatData } from './patient';
 import { Command } from 'commander';
 
 const program = new Command();
@@ -22,6 +22,7 @@ program
     .option('-s, --skip <skip>', 'Number of patients to skip', '0')
     .option('-a, --all', 'Process all patients')
     .option('-c, --check', 'Only check database connection')
+    .option('-d, --data <data>', 'Extract data for patient by data string (name, firstname, birthdate)')
     .action(async (options) => {
         if (options.patid) {
             extractDataByPatNumber(options.patid).then(async () => {
@@ -43,6 +44,10 @@ program
             } finally {
                 await db.destroy();
             }
+        } else if (options.data) {
+            extractDataByPatData(options.data).then(async () => {
+                await db.destroy();
+            });
         } else {
             const number = parseInt(options.number || '10', 10);
             const skip = parseInt(options.skip || '0', 10);

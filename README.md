@@ -51,6 +51,7 @@ where possible options are:
 * -s x or --skip x: start with the x-th patient
 * -n x or --number x: extract x patients (starting from -s)
 * -p x or --patid x: extract only the patient with PatientNr x
+* -d or --data: extract patients by identifier lastname,firstname,birthdate. e.g. `testperson,armeswesen,1.2.1950` or `testperson` or `,armeswesen` or `,,1.2.1950`. Will extract all matching patients.  
 * -a or --all: extract all patients (can take a very long time)
 
 After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data is provided in .json, .csv, .html, or .pdf format, as appropriate.
