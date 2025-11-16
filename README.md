@@ -14,6 +14,7 @@ Currently, the tool extracts:
 * Lab values
 * Vaccinations
 * Findings (from the original "Befunde" plugin)
+* Medications
 
 You can easily add extractors for your own Elexis plugins.
 
