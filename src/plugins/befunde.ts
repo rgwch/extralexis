@@ -10,7 +10,7 @@ import { htmlToPdf } from '../pdf'
  * @param outputDir 
  * @returns 
  */
-export async function extractFindings(patId: string, patLabel: string, outputDir: string) {
+export async function extractFindings(pat: any, patLabel: string, outputDir: string) {
     const setup = await db("elexisbefunde").where({ id: "__SETUP__" }).select();
     const raw = setup[0].befunde || setup[0].Befunde;
     const setupb64 = Buffer.isBuffer(raw) ? raw.toString('base64') : raw;
@@ -21,9 +21,9 @@ export async function extractFindings(patId: string, patLabel: string, outputDir
     }
     const names = setupjson.names.split(";;");
 
-    const findings = await db("elexisbefunde").where({ patientid: patId }).whereNot("deleted", "1").select();
+    const findings = await db("elexisbefunde").where({ patientid: pat.id }).whereNot("deleted", "1").select();
     if (findings.length === 0) {
-        console.log(`No findings found for patient ${patId}`);
+        console.log(`No findings found for patient ${pat.id}`);
         return;
     }
     const output = path.join(outputDir, "Befunde");
@@ -46,7 +46,7 @@ export async function extractFindings(patId: string, patLabel: string, outputDir
                 total.push(line);
             }
         } catch (err) {
-            console.error(`Error processing finding ${r.name} for patient ${patId}:`, err);
+            console.error(`Error processing finding ${r.name} for patient ${pat.id}:`, err);
         }
 
     }

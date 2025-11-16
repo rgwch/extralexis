@@ -15,12 +15,12 @@ import { existsSync } from 'fs';
  * @param patId 
  * @param outputDir 
  */
-export async function extractBriefe(patId: string, outputDir: string) {
+export async function extractBriefe(pat: any, outputDir: string) {
     const output = path.join(outputDir, "Briefe");
     try {
-        const documents = await db("briefe").where({ patientid: patId }).whereNot("deleted", "1").select();
+        const documents = await db("briefe").where({ patientid: pat.id }).whereNot("deleted", "1").select();
         if (documents.length === 0) {
-            console.log(`No letters found for patient ${patId}`);
+            console.log(`No letters found for patient ${pat.id}`);
             return;
         }
         await fs.mkdir(output, { recursive: true });
@@ -65,6 +65,6 @@ export async function extractBriefe(patId: string, outputDir: string) {
             await fs.writeFile(defpath + '.' + ext, contents.inhalt);
         }
     } catch (error) {
-        console.error(`Error extracting letters for patient ${patId}:`, error);
+        console.error(`Error extracting letters for patient ${pat.id}:`, error);
     }
 }

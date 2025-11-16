@@ -12,12 +12,12 @@ import { elexisDateToDateString, elexisDateToISODate, normalize } from '../util'
  * @param outputDir 
  * @returns 
  */
-export async function extractOmnivore(patId: string, outputDir: string) {
+export async function extractOmnivore(pat: any, outputDir: string) {
     const output = path.join(outputDir, "Dokumente")
     try {
-        const documents = await db("ch_elexis_omnivore_data").where({ patid: patId }).whereNot("deleted", "1").select();
+        const documents = await db("ch_elexis_omnivore_data").where({ patid: pat.id }).whereNot("deleted", "1").select();
         if (documents.length === 0) {
-            console.log(`No documents found for patient ${patId}`);
+            console.log(`No documents found for patient ${pat.id}`);
             return;
         }
         await fs.mkdir(output, { recursive: true });
@@ -50,6 +50,6 @@ export async function extractOmnivore(patId: string, outputDir: string) {
             await fs.writeFile(defpath + '.' + ext, doc.doc);
         }
     } catch (error) {
-        console.error(`Error extracting documents for patient ${patId}:`, error);
+        console.error(`Error extracting documents for patient ${pat.id}:`, error);
     }
 }

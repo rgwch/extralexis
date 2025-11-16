@@ -15,7 +15,7 @@ export function elexisDateToDateString(elexisDate: string): string {
         const day = elexisDate.slice(6, 8);
         return `${day}.${month}.${year}`;
     }
-    return '0000-00-00';
+    return '';
 }
 
 export function isoDateToElexisDate(isoDate: string): string {

@@ -11,10 +11,10 @@ import { htmlToPdf } from '../pdf';
  * @param outputDir 
  * @returns 
  */
-export async function extractVaccinations(patId: string, outputDir: string) {
-    const vaccs = await db("at_medevit_elexis_impfplan").where({ patient_id: patId }).whereNot("deleted", "1").select();
+export async function extractVaccinations(pat: any, outputDir: string) {
+    const vaccs = await db("at_medevit_elexis_impfplan").where({ patient_id: pat.id }).whereNot("deleted", "1").select();
     if (vaccs.length === 0) {
-        console.log(`No vaccinations found for patient ${patId}`);
+        console.log(`No vaccinations found for patient ${pat.id}`);
         return;
     }
     const output = path.join(outputDir, "Impfungen");
@@ -34,12 +34,12 @@ export async function extractVaccinations(patId: string, outputDir: string) {
     });
 
     // Write JSON file
-    const fileName = `impfungen_${patId}.json`;
+    const fileName = `impfungen_${pat.id}.json`;
     const filePath = path.join(output, fileName);
     await fs.writeFile(filePath, JSON.stringify(total, null, 2));
 
     // Write CSV file
-    const csvFileName = `impfungen_${patId}.csv`;
+    const csvFileName = `impfungen_${pat.id}.csv`;
     const csvFilePath = path.join(output, csvFileName);
 
     // Create CSV header
@@ -74,7 +74,7 @@ export async function extractVaccinations(patId: string, outputDir: string) {
     }
     html += "</table>";
     const htmlFile = path.join(output, "Impfungen.html")
-    await fs.writeFile(htmlFile, htmlSkeleton("Impfungen",html));
+    await fs.writeFile(htmlFile, htmlSkeleton("Impfungen", html));
     await htmlToPdf(htmlFile, path.join(outputDir, "Impfungen.pdf"));
-    console.log(`Extracted ${vaccs.length} vaccinations for patient ${patId}`);
+    console.log(`Extracted ${vaccs.length} vaccinations for patient ${pat.id}`);
 }

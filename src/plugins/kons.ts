@@ -16,10 +16,10 @@ import * as Samdas from '@rgwch/samdastools';
  * @param outputDir 
  * @returns 
  */
-export async function extractKons(patId: string, outputDir: string) {
-  const cases = await db("faelle").where({ patientid: patId }).whereNot("deleted", "1").select();
+export async function extractKons(pat: any, outputDir: string) {
+  const cases = await db("faelle").where({ patientid: pat.id }).whereNot("deleted", "1").select();
   if (cases.length === 0) {
-    console.log(`No cases found for patient ${patId}`);
+    console.log(`No cases found for patient ${pat.id}`);
     return;
   }
   let html = "<h1>Konsultationen</h1>\n";

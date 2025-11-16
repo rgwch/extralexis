@@ -101,51 +101,65 @@ export async function extractData(id: string) {
             const htmlfile = path.join(patpath, "Deckblatt.html");
             await fs.writeFile(htmlfile, htmlSkeleton(`[${pat.patientnr}] - ${makeLabel(pat)}`, html));
             await htmlToPdf(htmlfile, path.join(patpath, "Deckblatt.pdf"));
-            const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
-            if (handlers.includes("medication")) {
-                const { extractMedication } = await import("./plugins/medication")
-                await extractMedication(id, patpath);
-            }
-            if (handlers.includes("befunde")) {
-                const { extractFindings } = await import('./plugins/befunde');
-                await extractFindings(id, makeLabel(pat), patpath);
-            }
-            if (handlers.includes("omnivore")) {
-                const { extractOmnivore } = await import('./plugins/omnivore');
-                await extractOmnivore(id, patpath);
-            }
-            if (handlers.includes("briefe")) {
-                const { extractBriefe } = await import('./plugins/briefe');
-                await extractBriefe(id, patpath);
-            }
-            if (handlers.includes("kons")) {
-                const { extractKons } = await import('./plugins/kons');
-                await extractKons(id, patpath);
-                await fs.rename(path.join(patpath, "Konsultationen.html"), path.join(patpath, "Rohdaten", "Konsultationen.html"))
-           }
-            if (handlers.includes("lucinda")) {
-                const { extractLucinda } = await import('./plugins/lucinda');
-                await extractLucinda(`${pat.bezeichnung1}_${pat.bezeichnung2}_${elexisDateToDateString(pat.geburtsdatum)} `, patpath);
-            }
-            if (handlers.includes("labor")) {
-                const { extractLabresults } = await import('./plugins/lab');
-                await extractLabresults(id, patpath);
-            }
-            if (handlers.includes("vaccs")) {
-                const { extractVaccinations } = await import('./plugins/vaccs');
-                await extractVaccinations(id, patpath);
-            }
             await fs.mkdir(path.join(patpath, "Rohdaten")).catch(() => {
                 console.warn("Rohdaten folder probably exists already, skipping creation.");
             });
             await fs.rename(path.join(patpath, "info.json"), path.join(patpath, "Rohdaten", "info.json"));
             await fs.rename(path.join(patpath, "Deckblatt.html"), path.join(patpath, "Rohdaten", "Deckblatt.html"));
-            await fs.rename(path.join(patpath, "Befunde"), path.join(patpath, "Rohdaten", "Befunde")).catch(() => {
-                console.warn("Befunde folder probably does not exist, skipping moving it to Rohdaten.");
-            })
-            await fs.rename(path.join(patpath, "Impfungen"), path.join(patpath, "Rohdaten", "Impfungen")).catch(() => {
-                console.warn("Impfungen folder probably does not exist, skipping moving it to Rohdaten.");
-            })
+
+            const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
+
+            if (handlers.includes("medication")) {
+                const { extractMedication } = await import("./plugins/medication")
+                await extractMedication(pat, patpath);
+                await fs.rename(path.join(patpath, "Medikation"), path.join(patpath, "Rohdaten", "Medikation")).catch(() => {
+                    console.warn("Medikation folder probably does not exist, skipping moving it to Rohdaten.");
+                })
+
+            }
+
+            if (handlers.includes("befunde")) {
+                const { extractFindings } = await import('./plugins/befunde');
+                await extractFindings(pat, makeLabel(pat), patpath);
+                await fs.rename(path.join(patpath, "Befunde"), path.join(patpath, "Rohdaten", "Befunde")).catch(() => {
+                    console.warn("Befunde folder probably does not exist, skipping moving it to Rohdaten.");
+                })
+            }
+
+            if (handlers.includes("omnivore")) {
+                const { extractOmnivore } = await import('./plugins/omnivore');
+                await extractOmnivore(pat, patpath);
+            }
+
+            if (handlers.includes("briefe")) {
+                const { extractBriefe } = await import('./plugins/briefe');
+                await extractBriefe(pat, patpath);
+            }
+
+            if (handlers.includes("kons")) {
+                const { extractKons } = await import('./plugins/kons');
+                await extractKons(pat, patpath);
+                await fs.rename(path.join(patpath, "Konsultationen.html"), path.join(patpath, "Rohdaten", "Konsultationen.html"))
+            }
+
+            if (handlers.includes("lucinda")) {
+                const { extractLucinda } = await import('./plugins/lucinda');
+                await extractLucinda(`${pat.bezeichnung1}_${pat.bezeichnung2}_${elexisDateToDateString(pat.geburtsdatum)} `, patpath);
+            }
+
+            if (handlers.includes("labor")) {
+                const { extractLabresults } = await import('./plugins/lab');
+                await extractLabresults(pat, patpath);
+            }
+
+            if (handlers.includes("vaccs")) {
+                const { extractVaccinations } = await import('./plugins/vaccs');
+                await extractVaccinations(pat, patpath);
+                await fs.rename(path.join(patpath, "Impfungen"), path.join(patpath, "Rohdaten", "Impfungen")).catch(() => {
+                    console.warn("Impfungen folder probably does not exist, skipping moving it to Rohdaten.");
+                })
+
+            }
             console.log(`Extraction completed for patient id ${id} at ${patpath}`);
         }
     } catch (err) {

@@ -13,13 +13,13 @@ import { generateLabResultsPdf } from './lab-pdf';
  * @param outputDir 
  * @returns 
  */
-export async function extractLabresults(patId: string, outputDir: string) {
+export async function extractLabresults(pat: any, outputDir: string) {
     const output = path.join(outputDir, "Labor")
     try {
-        const results = await db("laborwerte").join("laboritems", "laboritems.id", "=", "laborwerte.itemid").where({ patientid: patId }).
+        const results = await db("laborwerte").join("laboritems", "laboritems.id", "=", "laborwerte.itemid").where({ patientid: pat.id }).
             whereNot("laborwerte.deleted", "1").orderBy("laborwerte.datum", "asc").select();
         if (results.length === 0) {
-            console.log(`No lab results found for patient ${patId}`);
+            console.log(`No lab results found for patient ${pat.id}`);
             return;
         }
         await fs.mkdir(output, { recursive: true });
@@ -31,12 +31,12 @@ export async function extractLabresults(patId: string, outputDir: string) {
         }
 
         // Write JSON file
-        const fileName = `labor_${patId}.json`;
+        const fileName = `labor_${pat.id}.json`;
         const filePath = path.join(output, fileName);
         await fs.writeFile(filePath, JSON.stringify(total, null, 2));
 
         // Write CSV file
-        const csvFileName = `labor_${patId}.csv`;
+        const csvFileName = `labor_${pat.id}.csv`;
         const csvFilePath = path.join(output, csvFileName);
 
         // Create CSV header
@@ -67,10 +67,10 @@ export async function extractLabresults(patId: string, outputDir: string) {
         await fs.writeFile(csvFilePath, csvContent);
 
         // Also generate HTML table
-        const htmlFileName = `labor_${patId}.html`;
+        const htmlFileName = `labor_${pat.id}.html`;
         const htmlFilePath = path.join(output, htmlFileName);
         await generateLabResultsHTML(filePath, htmlFilePath);
-        
+
         // Generate PDF from HTML
         const pdfFileName = `Labor.pdf`;
         const pdfFilePath = path.join(outputDir, pdfFileName);
@@ -87,6 +87,6 @@ export async function extractLabresults(patId: string, outputDir: string) {
         });
 
     } catch (error) {
-        console.error(`Error extracting lab results for patient ${patId}:`, error);
+        console.error(`Error extracting lab results for patient ${pat.id}:`, error);
     }
 }
