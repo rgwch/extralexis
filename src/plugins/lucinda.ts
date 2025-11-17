@@ -14,7 +14,7 @@ import { elexisDateToDateString, normalize } from '../util';
  * @returns 
  */
 export async function extractLucinda(dir: string, outputDir: string) {
-    const inputDir = path.join(process.env.documents, dir.substring(0, 1).toLowerCase(), dir)
+    const inputDir = path.join(process.env.documents.trim(), dir.substring(0, 1).trim().toLowerCase(), dir.trim()).trim()
     if (!inputDir || !existsSync(inputDir)) {
         console.warn("Lucinda documents directory not found or not specified in .env");
         return;
