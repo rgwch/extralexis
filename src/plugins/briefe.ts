@@ -16,7 +16,7 @@ import { existsSync } from 'fs';
  * @param outputDir 
  */
 export async function extractBriefe(pat: any, outputDir: string) {
-    const output = path.join(outputDir, "Briefe");
+    const output = path.join(outputDir, "Ausgehende_Dokumente");
     try {
         const documents = await db("briefe").where({ patientid: pat.id }).whereNot("deleted", "1").select();
         if (documents.length === 0) {
