@@ -25,10 +25,10 @@ let converterProcess: ChildProcess | null = null;
 async function startConverterService(): Promise<void> {
     return new Promise((resolve, reject) => {
         console.log('Starting Java converter service...');
-        
+
         // Look for the JAR file in the current directory
         const jarPath = path.join(process.cwd(), 'elexis_converter_5.0.2.jar');
-        
+
         converterProcess = spawn('java', ['-jar', jarPath], {
             stdio: ['ignore', 'pipe', 'pipe'],
             detached: false
@@ -36,8 +36,10 @@ async function startConverterService(): Promise<void> {
 
         converterProcess.stdout?.on('data', (data) => {
             const output = data.toString();
-            console.log(`[Converter] ${output.trim()}`);
-            
+            if (process.env.DEBUG) {
+                console.log(`[Converter] ${output.trim()}`);
+            }
+
             // Check if the service has started successfully
             if (output.includes('Started') || output.includes('Server started') || output.includes('listening')) {
                 console.log('Converter service started successfully');
@@ -77,16 +79,16 @@ async function startConverterService(): Promise<void> {
 async function stopConverterService(): Promise<void> {
     if (converterProcess && !converterProcess.killed) {
         console.log('Stopping Java converter service...');
-        
+
         return new Promise((resolve) => {
             converterProcess!.on('exit', () => {
                 console.log('Converter service stopped');
                 resolve();
             });
-            
+
             // Try graceful shutdown first
             converterProcess!.kill('SIGTERM');
-            
+
             // Force kill after 3 seconds if still running
             setTimeout(() => {
                 if (converterProcess && !converterProcess.killed) {
@@ -166,7 +168,7 @@ program
                 } catch (error) {
                     console.error('Database connection failed:', error);
                 }
-                
+
                 try {
                     const response = await fetch(`${process.env.converter}/extinfo/debug`, {
                         method: 'GET',
