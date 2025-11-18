@@ -60,7 +60,7 @@ In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't l
 
 ### Wrapper
 
-For Linux and Mac Systems, there's a simple wrapper to launch the converter, modify AppArmor and export: `./run.sh -p 1234` will set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, and reset the AppArmor restrictions to 1. 
+For Linux Systems, there's a simple wrapper to launch the converter, modify AppArmor and export: `./run.sh -p 1234` will set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, and reset the AppArmor restrictions to 1. 
 
 ## Acknowledgement
 
