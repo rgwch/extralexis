@@ -169,7 +169,7 @@ export function makeLabel(pat: any): string {
  * @returns the body embededed in a full HTML document
  */
 export function htmlSkeleton(patient: any, title: string, body: string): string {
-    const patientLabel = makeLabel(patient)+" - erstellt am "+dateToDisplayDate(new Date());
+    const patientLabel = makeLabel(patient)+" - Auszug erstellt am "+dateToDisplayDate(new Date());
     return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -194,6 +194,7 @@ export function htmlSkeleton(patient: any, title: string, body: string): string 
 
 h1 {
     color: #333;
+    font-size: 2em;
     text-align: center;
     margin-bottom: 30px;
 }

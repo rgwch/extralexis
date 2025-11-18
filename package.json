@@ -1,11 +1,11 @@
 {
   "name": "extralexis",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "main": "index.js",
   "scripts": {
     "dev": "tsc && NODE_ENV=debug node ./dist/index.js",
     "single": "tsc && NODE_ENV=debug node ./dist/index.js -p 2",
-    "build": "tsc && cp src/default.css dist/default.css",
+    "build": "tsc",
     "start": "tsc && NODE_ENV=production node ./dist/index.js",
     "generate-html": "npx ts-node generate-lab-html.ts",
     "generate-pdf": "npx ts-node generate-lab-pdf.ts",
