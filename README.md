@@ -36,10 +36,7 @@ Then, copy .env.copy to .env and change the values to match your own system and 
 
 ### Helper Service
 
-Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format.
-
-* Make sure you have installed Java 17
-* Run `java -jar elexis_converter_x.x.x.jar`
+Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format. This helper service is in the elexis_converter_x.x.x.jar which is launched automatically ad the beginning of the script and terminated after the end. This service depends on Java at least version 17. 
 
 ### Main program
 
@@ -63,7 +60,7 @@ In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't l
 
 ### Wrapper
 
-For Linux and Mac Systems, there's a simple wrapper to launch the converter, modify AppArmor and export: `./run.sh -p 1234` will launch the converter service, set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, reset the AppArmor restrictions to 1, and stop the java service. 
+For Linux and Mac Systems, there's a simple wrapper to launch the converter, modify AppArmor and export: `./run.sh -p 1234` will set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, and reset the AppArmor restrictions to 1. 
 
 ## Acknowledgement
 
