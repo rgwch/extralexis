@@ -1,13 +1,25 @@
+
+/**
+ * convert Elexis date format as used in the database (YYYYMMDD) to ISO date format (YYYY-MM-DD)
+ * @param elexisDate 
+ * @returns the ISO date string or empty string if input is invalid
+ */
 export function elexisDateToISODate(elexisDate: string): string {
     // Elexis date format is YYYYMMDD
     if (!/^\d{8}$/.test(elexisDate)) {
-        return '0000-00-00';
+        return '';
     }
     const year = elexisDate.slice(0, 4);
     const month = elexisDate.slice(4, 6);
     const day = elexisDate.slice(6, 8);
     return `${year}-${month}-${day}`;
 }
+
+/**
+ * Convert Elexis date format as used in the database (YYYYMMDD) to swiss/german style display date format (DD.MM.YYYY)
+ * @param elexisDate 
+ * @returns the display date string or empty string if input is invalid
+ */
 export function elexisDateToDateString(elexisDate: string): string {
     if (/^\d{8,14}$/.test(elexisDate)) {
         const year = elexisDate.slice(0, 4);
@@ -18,6 +30,11 @@ export function elexisDateToDateString(elexisDate: string): string {
     return '';
 }
 
+/**
+ * Convert ISO date format (YYYY-MM-DD) to Elexis date format as used in the database (YYYYMMDD)
+ * @param isoDate 
+ * @returns 
+ */
 export function isoDateToElexisDate(isoDate: string): string {
     // ISO date format is YYYY-MM-DD
     if (!/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
@@ -26,6 +43,11 @@ export function isoDateToElexisDate(isoDate: string): string {
     return isoDate.replace(/-/g, '');
 }
 
+/**
+ * Convert display date format (DD.MM.YYYY) to Date object
+ * @param displayDate 
+ * @returns 
+ */
 export function displayDateToDate(displayDate: string): Date {
     // Display date format is DD.MM.YYYY
     if (!/^\d{2}\.\d{2}\.\d{4}$/.test(displayDate)) {
@@ -35,6 +57,23 @@ export function displayDateToDate(displayDate: string): Date {
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
 }
 
+/**
+ * Convert Date object to display date format (DD.MM.YYYY)
+ * @param date 
+ * @returns 
+ */
+export function dateToDisplayDate(date: Date): string {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+/**
+ * Normalize object by converting null values to empty strings and making keys lowercase
+ * @param p 
+ * @returns 
+ */
 export function normalize(p: any) {
     for (const key in p) {
         if (p[key] === null) {
@@ -45,6 +84,12 @@ export function normalize(p: any) {
     return p
 }
 
+/**
+ * Convert a base64 encoded VersionedResource (as used in Elexis encounter entries) to a string version of the latest entry 
+ * via the converter service
+ * @param b64 
+ * @returns 
+ */
 export async function getVersionedResource(b64: string): Promise<string> {
     if (!b64 || b64.length === 0) {
         return "";
@@ -64,6 +109,11 @@ export async function getVersionedResource(b64: string): Promise<string> {
     return ""
 }
 
+/**
+ * Convert an Elexis-Java-Hashmap (e.g. an ExtInfo-Field) to JSON via the converter service
+ * @param mapped 
+ * @returns 
+ */
 export async function hashmapToJson(mapped: string): Promise<any> {
     const result = await fetch(`${process.env.converter}/extinfo/serialized-to-json`, {
         method: 'POST',
@@ -80,6 +130,11 @@ export async function hashmapToJson(mapped: string): Promise<any> {
     return null;
 }
 
+/**
+ * Expand an Elexis-Compex compressed string via the converter service
+ * @param b64 
+ * @returns 
+ */
 export async function compexExpand(b64: string): Promise<string> {
     if (!b64 || b64.length === 0) {
         return "";
@@ -106,8 +161,15 @@ export function makeLabel(pat: any): string {
     return lastname + " " + firstname + ", " + bdate
 }
 
+/**
+ * Standard HTML skeleton for reports
+ * @param patient 
+ * @param title 
+ * @param body the inner HTML body content
+ * @returns the body embededed in a full HTML document
+ */
 export function htmlSkeleton(patient: any, title: string, body: string): string {
-    const patientLabel = makeLabel(patient);
+    const patientLabel = makeLabel(patient)+" - erstellt am "+dateToDisplayDate(new Date());
     return `<!DOCTYPE html>
 <html lang="de">
 <head>
