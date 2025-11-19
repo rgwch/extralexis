@@ -30,7 +30,7 @@ git clone https://github.com/rgwch/extralexis
 cd extralexis
 npm i
 ```
-Then, copy .env.copy to .env and change the values to match your own system and the data types you want to include in the export.
+Then, copy .env.sample to .env and change the values to match your own system and the data types you want to include in the export.
 
 ## Usage
 

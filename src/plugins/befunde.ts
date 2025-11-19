@@ -59,6 +59,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     // Write CSV files - one for each Bezeichnung
     const groupedByBezeichnung = new Map<string, any[]>();
 
+    const groupsToshow = process.env["berichte.export"]?.toLowerCase().split(",") || [];
     // Group records by Bezeichnung
     for (const record of total) {
         const bezeichnung = record.Bezeichnung;
@@ -68,6 +69,41 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
         groupedByBezeichnung.get(bezeichnung)!.push(record);
     }
 
+    // Filter groups if needed
+    if (groupsToshow.length > 0) {
+        for (const key of Array.from(groupedByBezeichnung.keys())) {
+            if (!groupsToshow.includes(key.toLowerCase())) {
+                groupedByBezeichnung.delete(key);
+            }
+        }
+    }
+
+    // order groups as indicated in groupsToshow
+    if (groupsToshow.length > 0) {
+        const orderedMap = new Map<string, any[]>();
+        for (const groupName of groupsToshow) {
+            for (const [key, value] of groupedByBezeichnung) {
+                if (key.toLowerCase() === groupName) {
+                    orderedMap.set(key, value);
+                }
+            }
+        }
+        // add any remaining groups that were not specified in groupsToshow
+        for (const [key, value] of groupedByBezeichnung) {
+            if (!orderedMap.has(key)) {
+                orderedMap.set(key, value);
+            }
+        }
+        groupedByBezeichnung.clear();
+        for (const [key, value] of orderedMap) {
+            groupedByBezeichnung.set(key, value);
+        }
+    }
+
+    if (groupedByBezeichnung.size === 0) {
+        console.log(`No findings to export for patient ${pat.id} after applying filter`);
+        return;
+    }
     // Create CSV file for each Bezeichnung
     for (const [bezeichnung, records] of groupedByBezeichnung) {
         // Sort records by date (convert DD.MM.YYYY to comparable format)
@@ -122,7 +158,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     const htmlFileName = "Befunde.html";
     const htmlFilePath = path.join(output, htmlFileName);
 
- 
+
     // Get patient info for the title (using patId for now)
     const patientInfo = patLabel; // You might want to get actual patient name here
 
