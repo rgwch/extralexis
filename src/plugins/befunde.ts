@@ -59,7 +59,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     // Write CSV files - one for each Bezeichnung
     const groupedByBezeichnung = new Map<string, any[]>();
 
-    const groupsToshow = process.env["berichte.export"]?.toLowerCase().split(",") || [];
+    const groupsToshow = process.env["befunde.export"]?.toLowerCase().split(",") || [];
     // Group records by Bezeichnung
     for (const record of total) {
         const bezeichnung = record.Bezeichnung;
