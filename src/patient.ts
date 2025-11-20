@@ -95,7 +95,7 @@ export async function extractData(id: string) {
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
             let html = `<p>KG Nummer: ${pat.patientnr}</p>\n` +
-                `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1}, ${pat.email}</pre></div>\n`;
+                `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1 ? pat.telefon1+", " : ""}${pat.email}</pre></div>\n`;
 
             const diags = pat.diagnosen
             if (diags) {

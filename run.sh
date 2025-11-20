@@ -3,14 +3,6 @@
 # make sure we can sudo
 sudo ps -A|grep java
 
-# 1. Java-Programm im Hintergrund starten und PID speichern
-echo "Starte Elexis-Konverter im Hintergrund..."
-java -jar elexis_converter_5.0.2.jar &
-JAVA_PID=$! # Speichert die Prozess-ID (PID) des zuletzt gestarteten Hintergrundprozesses
-
-sleep 2
-
-# 2. AppArmor-Beschränkung für User Namespaces aufheben (0 = deaktiviert/gelockert)
 echo "Lockere AppArmor-Beschränkung..."
 echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
 
@@ -31,10 +23,5 @@ echo "Node-Programm beendet mit Exit-Code: $NODE_EXIT_CODE"
 echo "Stelle AppArmor-Beschränkung wieder her..."
 echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
 
-
-# 5. Das Java-Programm vom ersten Schritt stoppen
-echo "Stoppe Elexis-Konverter (PID: $JAVA_PID)..."
-kill "$JAVA_PID"
-echo "Java-Programm gestoppt."
 
 exit 0

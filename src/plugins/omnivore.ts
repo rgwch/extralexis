@@ -13,14 +13,16 @@ import { elexisDateToDateString, elexisDateToISODate, normalize } from '../util'
  * @returns 
  */
 export async function extractOmnivore(pat: any, outputDir: string) {
-    const output = path.join(outputDir, "Dokumente")
+    const incoming = path.join(outputDir, "Eingehende_Dokumente")
+    const outgoing = path.join(outputDir, "Ausgehende_Dokumente");
     try {
         const documents = await db("ch_elexis_omnivore_data").where({ patid: pat.id }).whereNot("deleted", "1").select();
         if (documents.length === 0) {
             console.log(`No documents found for patient ${pat.id}`);
             return;
         }
-        await fs.mkdir(output, { recursive: true });
+        await fs.mkdir(incoming, { recursive: true });
+        await fs.mkdir(outgoing, { recursive: true });
         for (const rdoc of documents) {
             const doc = normalize(rdoc)
             console.log(doc.mimetype)
@@ -41,7 +43,8 @@ export async function extractOmnivore(pat: any, outputDir: string) {
             if (filename.endsWith(ext)) {
                 filename = filename.substring(0, filename.length - ext.length - 1)
             }
-            const filepath = path.join(output, filename);
+            const dest = doc.category == "Ausgang" ? outgoing : incoming;
+            const filepath = path.join(dest, filename);
             let i = 2
             let defpath = filepath
             while (existsSync(defpath + '.' + ext)) {

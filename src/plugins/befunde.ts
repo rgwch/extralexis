@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, normalize, hashmapToJson } from '../util';
+import { elexisDateToDateString, normalize, hashmapToJson, htmlSkeleton } from '../util';
 import { htmlToPdf } from '../pdf'
 /**
  * Extracts all findings (Befunde) for a patient from the "elexisbefunde" table 
@@ -59,6 +59,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     // Write CSV files - one for each Bezeichnung
     const groupedByBezeichnung = new Map<string, any[]>();
 
+    const groupsToshow = process.env["befunde.export"]?.toLowerCase().split(",") || [];
     // Group records by Bezeichnung
     for (const record of total) {
         const bezeichnung = record.Bezeichnung;
@@ -68,6 +69,41 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
         groupedByBezeichnung.get(bezeichnung)!.push(record);
     }
 
+    // Filter groups if needed
+    if (groupsToshow.length > 0) {
+        for (const key of Array.from(groupedByBezeichnung.keys())) {
+            if (!groupsToshow.includes(key.toLowerCase())) {
+                groupedByBezeichnung.delete(key);
+            }
+        }
+    }
+
+    // order groups as indicated in groupsToshow
+    if (groupsToshow.length > 0) {
+        const orderedMap = new Map<string, any[]>();
+        for (const groupName of groupsToshow) {
+            for (const [key, value] of groupedByBezeichnung) {
+                if (key.toLowerCase() === groupName) {
+                    orderedMap.set(key, value);
+                }
+            }
+        }
+        // add any remaining groups that were not specified in groupsToshow
+        for (const [key, value] of groupedByBezeichnung) {
+            if (!orderedMap.has(key)) {
+                orderedMap.set(key, value);
+            }
+        }
+        groupedByBezeichnung.clear();
+        for (const [key, value] of orderedMap) {
+            groupedByBezeichnung.set(key, value);
+        }
+    }
+
+    if (groupedByBezeichnung.size === 0) {
+        console.log(`No findings to export for patient ${pat.id} after applying filter`);
+        return;
+    }
     // Create CSV file for each Bezeichnung
     for (const [bezeichnung, records] of groupedByBezeichnung) {
         // Sort records by date (convert DD.MM.YYYY to comparable format)
@@ -122,33 +158,11 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     const htmlFileName = "Befunde.html";
     const htmlFilePath = path.join(output, htmlFileName);
 
-    // Read CSS from external file
-    const cssFilePath = path.join(__dirname, '..', 'default.css');
-    const cssContent = await fs.readFile(cssFilePath, 'utf-8');
 
     // Get patient info for the title (using patId for now)
     const patientInfo = patLabel; // You might want to get actual patient name here
 
-    let htmlContent = `<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Befunde Bericht - ${patientInfo}</title>
-    <style>
-        ${cssContent}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>📋 Befunde Bericht</h1>
-        <div class="summary">
-            <strong>Patient:</strong> ${patientInfo}<br>
-            <strong>Erstellt am:</strong> ${new Date().toLocaleDateString('de-DE')}<br>
-            <strong>Anzahl Befund-Typen:</strong> ${groupedByBezeichnung.size}<br>
-            <strong>Gesamtanzahl Befunde:</strong> ${total.length}
-        </div>
-`;
+    let htmlContent = "<div>"
 
     // Add a section for each Bezeichnung
     for (const [bezeichnung, records] of groupedByBezeichnung) {
@@ -176,7 +190,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
         const sortedColumns = ['Datum', ...Array.from(allColumns).filter(col => col !== 'Datum')];
 
         htmlContent += `
-        <h2>📊 ${bezeichnung} (${records.length} Einträge)</h2>
+        <h2>${bezeichnung}</h2>
         <table>
             <thead>
                 <tr>
@@ -215,11 +229,9 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     }
 
     htmlContent += `
-    </div>
-</body>
-</html>`;
+    </div>`;
 
-    await fs.writeFile(htmlFilePath, htmlContent);
+    await fs.writeFile(htmlFilePath, htmlSkeleton(pat, "Befunde", htmlContent));
     await htmlToPdf(htmlFilePath, path.join(outputDir, "Befunde.pdf"));
 
 }
