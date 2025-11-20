@@ -36,7 +36,7 @@ Then, copy .env.sample to .env and change the values to match your own system an
 
 ### Helper Service
 
-Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format. This helper service is in the elexis_converter_x.x.x.jar which is launched automatically ad the beginning of the script and terminated after the end. This service depends on Java at least version 17. 
+Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format. This helper service is in the elexis_converter_x.x.x.jar which is launched automatically at the beginning of the script and terminated at the end. This service requires Java version 17 or higher. 
 
 ### Main program
 
@@ -49,7 +49,7 @@ where possible options are:
 * -s x or --skip x: start with the x-th patient
 * -n x or --number x: extract x patients (starting from -s)
 * -p x or --patid x: extract only the patient with PatientNr x
-* -d or --data: extract patients by identifier lastname,firstname,birthdate. e.g. `testperson,armeswesen,1.2.1950` or `testperson` or `,armeswesen` or `,,1.2.1950`. Will extract all matching patients.  
+* -d or --data: extract patients by identifier lastname,firstname,birthdate. e.g., `testperson,armeswesen,1.2.1950` or `testperson` or `,armeswesen` or `,,1.2.1950`. Will extract all matching patients.  
 * -a or --all: extract all patients (can take a very long time)
 
 After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data is provided in .json, .csv, .html, or .pdf format, as appropriate.
@@ -60,7 +60,12 @@ In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't l
 
 ### Wrapper
 
-For Linux Systems, there's a simple wrapper to launch the converter, modify AppArmor and export: `./run.sh -p 1234` will set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, and reset the AppArmor restrictions to 1. 
+For Linux systems, there's a simple wrapper to launch the converter, modify AppArmor, and export: `./run.sh -p 1234` will set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, and reset the AppArmor restrictions to 1. 
+
+## Standalone
+
+If you have installed [bun](https://bun.sh/), you can create a standalone program: `bun run standalone` will create a single executable that runs on computers without Node.js or Bun installed. You'll still need elexis_converter_x.y.z.jar in the same directory as the executable (and Java 17 installed, but if you are using Elexis, this will probably already be available).
+As a convenience, you can create an 'extralexis.cfg' file with the same contents as described in .env.sample. On startup, Extralexis will look for such a file and parse it if found. Values in that file will override environment values.
 
 ## Acknowledgement
 
