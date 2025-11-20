@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, normalize, htmlSkeleton, displayDateToDate } from '../util';
-import { htmlToPdf } from '../pdf';
+import { elexisDateToDateString, normalize, htmlSkeleton, displayDateToDate } from '../lib/util';
+import { htmlToPdf } from '../lib/pdf';
 
 /**
  * Vaccinations are stored in the "at_medevit_elexis_impfplan" table. 

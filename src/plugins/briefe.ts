@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, elexisDateToISODate, normalize } from '../util';
+import { elexisDateToDateString, elexisDateToISODate, normalize } from '../lib/util';
 import { existsSync } from 'fs';
 
 /**

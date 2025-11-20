@@ -1,9 +1,9 @@
 import { db } from '../index';
-import { elexisDateToDateString, normalize, getVersionedResource, htmlSkeleton } from '../util';
-import { htmlToPdf } from '../pdf';
+import { elexisDateToDateString, normalize, getVersionedResource, htmlSkeleton } from '../lib/util';
+import { htmlToPdf } from '../lib/pdf';
 import fs from 'fs/promises';
 import path from 'path';
-import * as Samdas from '@rgwch/samdastools';
+import { samdasToHtml } from '../lib/samdas';
 
 /**
  * Text entries of consultations (Konsultationen) are stored in the "behandlungen" table.
@@ -42,7 +42,7 @@ export async function extractKons(pat: any, outputDir: string) {
         const base64String = Buffer.isBuffer(k.eintrag) ? k.eintrag.toString('base64') : k.eintrag;
         const entry = await getVersionedResource(base64String);
         if (entry) {
-          const entryHtml = await Samdas.toHtml(entry);
+          const entryHtml = await samdasToHtml(entry);
           html += entryHtml + "\n<br/>\n";
         }
       } catch (err) {

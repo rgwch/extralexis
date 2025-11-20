@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, normalize, hashmapToJson, htmlSkeleton } from '../util';
-import { htmlToPdf } from '../pdf'
+import { elexisDateToDateString, normalize, hashmapToJson, htmlSkeleton } from '../lib/util';
+import { htmlToPdf } from '../lib/pdf'
 /**
  * Extracts all findings (Befunde) for a patient from the "elexisbefunde" table 
  * and saves them in both JSON and CSV formats 

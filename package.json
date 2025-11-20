@@ -1,13 +1,13 @@
 {
   "name": "extralexis",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "main": "index.js",
   "scripts": {
     "dev": "tsc && NODE_ENV=debug node ./dist/index.js",
     "single": "tsc && NODE_ENV=debug node ./dist/index.js -p 2",
     "build": "tsc",
     "start": "tsc && NODE_ENV=production node ./dist/index.js",
-    "standalone": "bun build src/index.ts --outfile=extralexis --compile",
+    "standalone": "bun build src/index.ts --outfile=extralexis --sourcemap src/index.ts --compile",
     "generate-html": "npx ts-node generate-lab-html.ts",
     "generate-pdf": "npx ts-node generate-lab-pdf.ts",
     "test": "echo \"Error: no test specified\" && exit 1"

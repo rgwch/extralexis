@@ -2,7 +2,7 @@ import { db } from '../index';
 import path from "path"
 import fs from "fs/promises"
 import { existsSync } from 'fs';
-import { elexisDateToDateString, elexisDateToISODate, normalize } from '../util';
+import { elexisDateToDateString, elexisDateToISODate, normalize } from '../lib/util';
 
 /**
  * Omnivore is a document management system for Elexis.

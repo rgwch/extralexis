@@ -1,6 +1,6 @@
 import { db } from './index';
-import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton } from './util';
-import { htmlToPdf } from './pdf';
+import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton } from './lib/util';
+import { htmlToPdf } from './lib/pdf';
 import fs from 'fs/promises';
 import path from 'path';
 

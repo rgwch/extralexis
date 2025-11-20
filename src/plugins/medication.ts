@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { db } from '../index';
-import { elexisDateToDateString, elexisDateToISODate, normalize, htmlSkeleton, hashmapToJson } from '../util';
-import { htmlToPdf } from '../pdf';
+import { elexisDateToDateString, elexisDateToISODate, normalize, htmlSkeleton, hashmapToJson } from '../lib/util';
+import { htmlToPdf } from '../lib/pdf';
 
 enum medicationType {
     unknown = -1,

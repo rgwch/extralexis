@@ -2,7 +2,7 @@ import { db } from '../index';
 import path from "path"
 import fs from "fs/promises"
 import { existsSync } from 'fs';
-import { elexisDateToDateString, normalize } from '../util';
+import { elexisDateToDateString, normalize } from '../lib/util';
 
 /**
  * Lucina is a document management system for Elexis.

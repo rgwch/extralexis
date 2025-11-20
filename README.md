@@ -64,7 +64,7 @@ For Linux systems, there's a simple wrapper to launch the converter, modify AppA
 
 ## Standalone
 
-If you have installed [bun](https://bun.sh/), you can create a standalone program: `bun run standalone` will create a single executable that runs on computers without Node.js or Bun installed. You'll still need elexis_converter_x.y.z.jar in the same directory as the executable (and Java 17 installed, but if you are using Elexis, this will probably already be available).
+If you have installed [bun](https://bun.sh/), you can create a standalone program: `bun install`, then `bun run standalone` will create a single executable that runs on computers without Node.js or Bun installed. You'll still need elexis_converter_x.y.z.jar in the same directory as the executable (and Java 17 installed, but if you are using Elexis, this will probably already be available).
 As a convenience, you can create an 'extralexis.cfg' file with the same contents as described in .env.sample. On startup, Extralexis will look for such a file and parse it if found. Values in that file will override environment values.
 
 ## Acknowledgement
