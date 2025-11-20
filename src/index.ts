@@ -4,6 +4,49 @@ import { getPatients, extractData, extractDataByPatNumber, getTotalPatientCount,
 import { Command } from 'commander';
 import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
+import fs from 'fs';
+
+// Load configuration file if it exists
+function loadConfigFile() {
+    // const scriptPath = process.argv[1]; // Path to the currently running script
+    // const configPath = path.join(path.basename(scriptPath, path.extname(scriptPath)) + '.cfg');
+    const configPath = path.join(process.cwd(), 'extralexis.cfg');
+    console.log(`Looking for configuration file at: ${configPath}`);
+    if (fs.existsSync(configPath)) {
+        console.log(`Loading configuration from: ${configPath}`);
+        try {
+            const configContent = fs.readFileSync(configPath, 'utf-8');
+            const lines = configContent.split('\n');
+            
+            for (const line of lines) {
+                const trimmedLine = line.trim();
+                // Skip empty lines and comments (lines starting with #)
+                if (!trimmedLine || trimmedLine.startsWith('#')) {
+                    continue;
+                }
+                
+                const equalIndex = trimmedLine.indexOf('=');
+                if (equalIndex > 0) {
+                    const name = trimmedLine.substring(0, equalIndex).trim();
+                    const value = trimmedLine.substring(equalIndex + 1).trim();
+                    
+                    // Remove quotes if present
+                    const cleanValue = value.replace(/^["']|["']$/g, '');
+                    
+                    process.env[name] = cleanValue;
+                    console.log(`Set ${name}=${cleanValue}`);
+                }
+            }
+        } catch (error) {
+            console.error(`Error reading configuration file ${configPath}:`, error);
+        }
+    }else{
+        console.log('No configuration file found.');
+    }
+}
+
+// Load configuration before initializing database
+loadConfigFile();
 
 const program = new Command();
 export const db = knex({
