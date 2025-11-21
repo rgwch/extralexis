@@ -56,11 +56,8 @@ After processing, there will be a subdirectory in the directory declared with "o
 
 ### Troubleshooting
 
-In newer Ubuntu distributions, PDF generation may fail because Puppeteer can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
-
-### Wrapper
-
-For Linux systems, there's a simple wrapper to launch the converter, modify AppArmor, and export: `./run.sh -p 1234` will set AppArmor restrictions to 0, launch `node dist/index.js -p 1234`, and reset the AppArmor restrictions to 1. 
+In newer Ubuntu distributions, PDF generation may fail because [Puppeteer](https://github.com/puppeteer/puppeteer) (the library used as PDF-Generator) can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
+Or, probably more conventient: You might install an official version of the [Chrome Browser](https://www.google.com/intl/de/chrome/). If puppetteer finds such an instance of Chrome, it will use that.
 
 ## Standalone
 
@@ -71,6 +68,8 @@ If you have installed [bun](https://bun.sh/), you can create a standalone progra
 - Run `npx puppeteer browsers install chrome` in the same directory as the executable
 
 As a convenience, you can create an 'extralexis.cfg' file with the same contents as described in .env.copy. On startup, Extralexis will look for such a file and parse it if found. Values in that file will override environment values.
+
+The script `deployment.sh`  will create extralexis executables for Linux-x64, Windows-x64, Mac-x64 and Mac-arm64 Systems.
 
 ## Acknowledgement
 
