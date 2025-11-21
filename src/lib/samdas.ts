@@ -1,10 +1,12 @@
-const parse = require('xml-parser')
-const xmljs = require('xml2js')
+import { version } from 'os'
+import parse from 'xml-parser'
+import xmljs  from 'xml2js'
 
 const builderOpts = {
   rootName: "samdas:EMR",
-  xmldec: { standalone: undefined, encoding: "UTF-8" },
-  renderOpts: { pretty: false }
+  xmldec: { standalone: undefined, encoding: "UTF-8", version: "1.0" },
+  renderOpts: { pretty: false },
+  headless: true
 }
 const xmlbuilder = new xmljs.Builder(builderOpts)
 const Parser = new xmljs.Parser()
@@ -64,7 +66,7 @@ export const samdasToHtml = async samdastext => {
   }).map(e => e.attributes)
     .concat(xrefs)
     .concat(hints)
-    .sort((a, b) => a.from - b.from)
+    .sort((a, b) => parseInt(a.from) - parseInt(b.from))
   let plaintext = ""
   texts.forEach(text => { plaintext = plaintext + text })
   plaintext = plaintext.replace(/&#xD;/g, "\n")
@@ -74,8 +76,8 @@ export const samdasToHtml = async samdastext => {
   let dest = ""
   let pos = 0
   for (let markup of markups) {
-    let marked = plaintext.substr(markup.from, markup.length)
-    dest += plaintext.substring(pos, markup.from)
+    let marked = plaintext.substr(parseInt(markup.from), parseInt(markup.length))
+    dest += plaintext.substring(pos, parseInt(markup.from))
     switch (markup.type) {
       case "bold": dest += `<strong>${marked}</strong>`; break;
       case "italic": dest += `<i>${marked}</i>`; break;
