@@ -2,9 +2,11 @@ import "dotenv/config"
 import knex from 'knex';
 import { getPatients, extractData, extractDataByPatNumber, getTotalPatientCount, extractDataByPatData } from './patient';
 import { Command } from 'commander';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+const CONVERTER="elexis_converter_5.0.2.jar";
+
 
 // Load configuration file if it exists
 function loadConfigFile() {
@@ -48,6 +50,73 @@ function loadConfigFile() {
 // Load configuration before initializing database
 loadConfigFile();
 
+/**
+ * Check if Java version 17 or higher is available
+ */
+function checkJavaVersion(): Promise<boolean> {
+    return new Promise((resolve) => {
+        exec('java -version', (error, stdout, stderr) => {
+            if (error) {
+                console.error('❌ Java is not installed or not in PATH');
+                resolve(false);
+                return;
+            }
+            
+            // Java version output goes to stderr
+            const versionOutput = stderr || stdout;
+            const versionMatch = versionOutput.match(/version "(\d+)/);
+            
+            if (!versionMatch) {
+                console.error('❌ Could not determine Java version');
+                resolve(false);
+                return;
+            }
+            
+            const majorVersion = parseInt(versionMatch[1]);
+            if (majorVersion >= 17) {
+                console.log(`✅ Java ${majorVersion} detected (required: 17+)`);
+                resolve(true);
+            } else {
+                console.error(`❌ Java ${majorVersion} detected, but version 17 or higher is required`);
+                resolve(false);
+            }
+        });
+    });
+}
+
+/**
+ * Check if the converter JAR file exists
+ */
+function checkConverterJar(): boolean {
+    const jarPath = path.join(process.cwd(), CONVERTER);
+    if (fs.existsSync(jarPath)) {
+        console.log(`✅ Converter JAR found: ${jarPath}`);
+        return true;
+    } else {
+        console.error(`❌ Converter JAR not found: ${jarPath}`);
+        console.error('Please ensure the elexis_converter JAR file is in the current directory.');
+        return false;
+    }
+}
+
+/**
+ * Perform all prerequisite checks
+ */
+async function checkPrerequisites(): Promise<boolean> {
+    console.log('🔍 Checking prerequisites...');
+    
+    const javaOk = await checkJavaVersion();
+    const jarOk = checkConverterJar();
+    
+    if (javaOk && jarOk) {
+        console.log('✅ All prerequisites met');
+        return true;
+    } else {
+        console.error('❌ Prerequisites not met. Please fix the issues above and try again.');
+        return false;
+    }
+}
+
 const program = new Command();
 export const db = knex({
     client: 'mysql2',
@@ -70,7 +139,7 @@ async function startConverterService(): Promise<void> {
         console.log('Starting Java converter service...');
 
         // Look for the JAR file in the current directory
-        const jarPath = path.join(process.cwd(), 'elexis_converter_5.0.2.jar');
+        const jarPath = path.join(process.cwd(), CONVERTER);
 
         converterProcess = spawn('java', ['-jar', jarPath], {
             stdio: ['ignore', 'pipe', 'pipe'],
@@ -189,6 +258,12 @@ program
     .option('--no-converter', 'Skip starting the converter service (use existing one)')
     .action(async (options) => {
         try {
+            // Check prerequisites first
+            const prerequisitesOk = await checkPrerequisites();
+            if (!prerequisitesOk) {
+                process.exit(1);
+            }
+
             // Start converter service unless explicitly disabled
             if (!options.noConverter) {
                 await startConverterService();
