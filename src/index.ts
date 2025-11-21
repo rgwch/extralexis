@@ -6,7 +6,9 @@ import { spawn, ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 const CONVERTER="elexis_converter_5.0.2.jar";
-
+if(!process.env.converter){
+    process.env.converter="http://localhost:8080";
+}
 
 // Load configuration file if it exists
 function loadConfigFile() {
