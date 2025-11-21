@@ -3,7 +3,7 @@ import { elexisDateToDateString, normalize, getVersionedResource, htmlSkeleton }
 import { htmlToPdf } from '../lib/pdf';
 import fs from 'fs/promises';
 import path from 'path';
-import { samdasToHtml } from '../lib/samdas';
+import { samdasToHtml, plaintextToHtml } from '../lib/samdas';
 
 /**
  * Text entries of consultations (Konsultationen) are stored in the "behandlungen" table.
@@ -40,9 +40,14 @@ export async function extractKons(pat: any, outputDir: string) {
         let title = `Konsultation vom ${bdate}`
         html += `<h3>${title}</h3>\n`
         const base64String = Buffer.isBuffer(k.eintrag) ? k.eintrag.toString('base64') : k.eintrag;
-        const entry = await getVersionedResource(base64String);
+        const entry = (await getVersionedResource(base64String)).trim();
         if (entry) {
-          const entryHtml = await samdasToHtml(entry);
+          let entryHtml = ""
+          if (entry.startsWith("<")) {
+            entryHtml = await samdasToHtml(entry);
+          } else {
+            entryHtml = await plaintextToHtml(entry);
+          }
           html += entryHtml + "\n<br/>\n";
         }
       } catch (err) {
