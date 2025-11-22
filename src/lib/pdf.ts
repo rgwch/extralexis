@@ -2,7 +2,20 @@ import puppeteer from 'puppeteer'
 import fs from 'fs/promises';
 import path from 'path'
 
-async function findChromePath(): Promise<string | undefined> {
+export interface PdfOptions {
+    format?: 'A4' | 'A3' | 'Letter' | 'Legal';
+    orientation?: 'portrait' | 'landscape';
+    margins?: {
+        top?: string;
+        right?: string;
+        bottom?: string;
+        left?: string;
+    };
+    printBackground?: boolean;
+    scale?: number;
+}
+
+export async function findChromePath(): Promise<string | undefined> {
     const possiblePaths = [
         // Windows paths
         'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -26,13 +39,13 @@ async function findChromePath(): Promise<string | undefined> {
             // Continue to next path
         }
     }
-    
+
     return undefined;
 }
 
 export async function htmlToPdf(htmlFilePath: string, outputPdfPath: string) {
     await fs.copyFile(htmlFilePath, path.join(process.cwd(), "infile.html"));
-    
+
     let launchOptions: any = {
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']

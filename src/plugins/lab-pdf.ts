@@ -1,19 +1,9 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs/promises';
 import path from 'path';
+import { PdfOptions, findChromePath } from '../lib/pdf';
 
-export interface PdfOptions {
-    format?: 'A4' | 'A3' | 'Letter' | 'Legal';
-    orientation?: 'portrait' | 'landscape';
-    margins?: {
-        top?: string;
-        right?: string;
-        bottom?: string;
-        left?: string;
-    };
-    printBackground?: boolean;
-    scale?: number;
-}
+
 
 /**
  * Enhanced PDF generator specifically optimized for lab results tables
@@ -31,16 +21,22 @@ export async function generateLabResultsPdf(htmlFilePath: string, outputPdfPath:
         printBackground: true,
         scale: 0.7 // Smaller scale to fit more content
     };
+    const chromePath = await findChromePath();
 
     const finalOptions = { ...defaultOptions, ...options };
-
+    if (chromePath) {
+        console.log(`Using system Chrome at: ${chromePath}`);
+    } else {
+        console.log('System Chrome not found, using bundled Chromium (may require download)');
+    }
     // Ensure output directory exists
     const outputDir = path.dirname(outputPdfPath);
     await fs.mkdir(outputDir, { recursive: true });
 
     const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        ...(chromePath ? { executablePath: chromePath } : {})
     });
 
     try {
