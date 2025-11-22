@@ -34,12 +34,12 @@ export async function extractVaccinations(pat: any, outputDir: string) {
     });
 
     // Write JSON file
-    const fileName = `impfungen_${pat.id}.json`;
+    const fileName = `impfungen.json`;
     const filePath = path.join(output, fileName);
     await fs.writeFile(filePath, JSON.stringify(total, null, 2));
 
     // Write CSV file
-    const csvFileName = `impfungen_${pat.id}.csv`;
+    const csvFileName = `impfungen.csv`;
     const csvFilePath = path.join(output, csvFileName);
 
     // Create CSV header

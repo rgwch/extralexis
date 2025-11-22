@@ -31,13 +31,13 @@ export async function extractLabresults(pat: any, outputDir: string) {
         }
 
         // Write JSON file
-        const fileName = `labor_${pat.id}.json`;
+        const fileName = `labor.json`;
         const filePath = path.join(output, fileName);
         await fs.writeFile(filePath, JSON.stringify(total, null, 2));
 
         // Write CSV file
-        const csvFileName = `labor_${pat.id}.csv`;
-        const csvFilePath = path.join(outputDir, csvFileName);
+        const csvFileName = `labor.csv`;
+        const csvFilePath = path.join(output, csvFileName);
 
         // Create CSV header
         const csvHeader = 'Datum,Item,Wert,Einheit,Referenzbereich,Kommentar\n';
@@ -67,7 +67,7 @@ export async function extractLabresults(pat: any, outputDir: string) {
         await fs.writeFile(csvFilePath, csvContent);
 
         // Also generate HTML table
-        const htmlFileName = `labor_${pat.id}.html`;
+        const htmlFileName = `labor.html`;
         const htmlFilePath = path.join(output, htmlFileName);
         await generateLabResultsHTML(filePath, htmlFilePath);
 

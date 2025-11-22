@@ -1,7 +1,7 @@
 import { db } from './index';
 import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton, dateToDisplayDate } from './lib/util';
 import { htmlToPdf } from './lib/pdf';
-import {readme} from './lib/readme';
+import { readme_plaintext, readme_html } from './lib/readme';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -141,8 +141,14 @@ export async function extractData(id: string) {
             await fs.rename(path.join(patpath, "info.json"), path.join(patpath, "Rohdaten", "info.json"));
             await fs.rename(path.join(patpath, "Deckblatt.html"), path.join(patpath, "Rohdaten", "Deckblatt.html"));
 
-            const readmeContent = readme.replace("{patient}", makeLabel(pat)).replace("{date}", dateToDisplayDate(new Date()));
+            const readmeContent = readme_plaintext.replace("{patient}", makeLabel(pat)).replace("{date}", dateToDisplayDate(new Date()));
             await fs.writeFile(path.join(patpath, "Bitte_lesen.txt"), readmeContent);
+
+            const readmeHtmlContent = readme_html(pat, dateToDisplayDate(new Date()));
+            const htmlfile2 = path.join(patpath, "Bitte_lesen.html");
+            await fs.writeFile(htmlfile2, readmeHtmlContent);
+            await htmlToPdf(htmlfile2, path.join(patpath, "Bitte_lesen.pdf"));
+            await fs.unlink(htmlfile2);
 
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
 
