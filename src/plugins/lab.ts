@@ -37,7 +37,7 @@ export async function extractLabresults(pat: any, outputDir: string) {
 
         // Write CSV file
         const csvFileName = `labor_${pat.id}.csv`;
-        const csvFilePath = path.join(output, csvFileName);
+        const csvFilePath = path.join(outputDir, csvFileName);
 
         // Create CSV header
         const csvHeader = 'Datum,Item,Wert,Einheit,Referenzbereich,Kommentar\n';

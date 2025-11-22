@@ -1,6 +1,7 @@
 import { db } from './index';
-import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton } from './lib/util';
+import { elexisDateToDateString, normalize, makeLabel, compexExpand, htmlSkeleton, dateToDisplayDate } from './lib/util';
 import { htmlToPdf } from './lib/pdf';
+import {readme} from './lib/readme';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -95,7 +96,7 @@ export async function extractData(id: string) {
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
             let html = `<p>KG Nummer: ${pat.patientnr}</p>\n` +
-                `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1 ? pat.telefon1+", " : ""}${pat.email}</pre></div>\n`;
+                `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1 ? pat.telefon1 + ", " : ""}${pat.email}</pre></div>\n`;
 
             const diags = pat.diagnosen
             if (diags) {
@@ -140,6 +141,9 @@ export async function extractData(id: string) {
             await fs.rename(path.join(patpath, "info.json"), path.join(patpath, "Rohdaten", "info.json"));
             await fs.rename(path.join(patpath, "Deckblatt.html"), path.join(patpath, "Rohdaten", "Deckblatt.html"));
 
+            const readmeContent = readme.replace("{patient}", makeLabel(pat)).replace("{date}", dateToDisplayDate(new Date()));
+            await fs.writeFile(path.join(patpath, "Bitte_lesen.txt"), readmeContent);
+
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
 
             if (handlers.includes("medication")) {
@@ -183,6 +187,9 @@ export async function extractData(id: string) {
             if (handlers.includes("labor")) {
                 const { extractLabresults } = await import('./plugins/lab');
                 await extractLabresults(pat, patpath);
+                await fs.rename(path.join(patpath, "Labor"), path.join(patpath, "Rohdaten", "Labor")).catch(() => {
+                    console.warn("Labor folder probably does not exist, skipping moving it to Rohdaten.");
+                })
             }
 
             if (handlers.includes("vaccs")) {
