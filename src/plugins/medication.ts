@@ -28,6 +28,15 @@ function medicationTypeToString(type: number): string {
             return "Unbekannt";
     }
 }
+
+/**
+ * Medications are stored in the "patient_artikel_joint" table, linked to "artikel" or "artikelstamm_ch" for metadata. 
+ * Depending of the Elexis version, there were several methods to determine the articles (medications).
+ * This function extracts all medications for a patient and saves them in JSON, HTML, and PDF formats.
+ * @param pat patient data as read from the "kontakt" table
+ * @param outputDir 
+ * @returns 
+ */
 export async function extractMedication(pat: any, outputDir: string) {
     const output = path.join(outputDir, "Medikation");
     await fs.mkdir(output, { recursive: true });

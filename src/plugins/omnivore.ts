@@ -7,8 +7,9 @@ import { elexisDateToDateString, elexisDateToISODate, normalize } from '../lib/u
 /**
  * Omnivore is a document management system for Elexis.
  * Documents are stored in the "ch_elexis_omnivore_data" table, with metadata such as title, date, and mimetype.
+ * Depending on the elexis configuration, documents can be stored in the file system or directly in the database as BLOBs.
  * This function extracts all documents for a patient and saves them to the output directory.
- * @param patId 
+ * @param pat patient data as read from the "kontakt" table
  * @param outputDir 
  * @returns 
  */

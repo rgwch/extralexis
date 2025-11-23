@@ -5,9 +5,10 @@ import { elexisDateToDateString, normalize, hashmapToJson, htmlSkeleton } from '
 import { htmlToPdf } from '../lib/pdf'
 /**
  * Extracts all findings (Befunde) for a patient from the "elexisbefunde" table 
- * and saves them in both JSON and CSV formats 
- * @param patId 
- * @param outputDir 
+ * and saves them in JSON, CSV, HTML, and PDF formats 
+ * @param pat patient data as read from the "kontakt" table
+ * @param patLabel label to identify the patient (e.g. name or patient number)
+ * @param outputDir diretory where the output files should be saved
  * @returns 
  */
 export async function extractFindings(pat: any, patLabel: string, outputDir: string) {
@@ -69,7 +70,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
         groupedByBezeichnung.get(bezeichnung)!.push(record);
     }
 
-    // Filter groups if needed
+    // Filter groups if the user has specified a "befunde.export" setting
     if (groupsToshow.length > 0) {
         for (const key of Array.from(groupedByBezeichnung.keys())) {
             if (!groupsToshow.includes(key.toLowerCase())) {
@@ -106,7 +107,7 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     }
     // Create CSV file for each Bezeichnung
     for (const [bezeichnung, records] of groupedByBezeichnung) {
-        // Sort records by date (convert DD.MM.YYYY to comparable format)
+        // Sort records by date
         records.sort((a, b) => {
             const parseDate = (dateStr: string) => {
                 const [day, month, year] = dateStr.split('.');
@@ -157,10 +158,6 @@ export async function extractFindings(pat: any, patLabel: string, outputDir: str
     // Generate HTML report
     const htmlFileName = "Befunde.html";
     const htmlFilePath = path.join(output, htmlFileName);
-
-
-    // Get patient info for the title (using patId for now)
-    const patientInfo = patLabel; // You might want to get actual patient name here
 
     let htmlContent = "<div>"
 

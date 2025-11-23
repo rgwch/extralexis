@@ -6,6 +6,12 @@ import fs from 'fs/promises';
 import path from 'path';
 
 
+/**
+ * Retrieve a list of patients with pagination, orderd by lastname (bezeichnung1).
+ * @param offset number of partients to skip
+ * @param limit number of patients to retrieve 
+ * @returns 
+ */
 export async function getPatients(offset: number, limit: number): Promise<Array<{ id: string, bezeichnung1: string, bezeichnung2: string, geburtsdatum: string, patientnr: string }>> {
     const pats = await db('kontakt').select('id', 'bezeichnung1', 'bezeichnung2', 'geburtsdatum', "patientnr")
         .where({ istpatient: "1" }).whereNot({ deleted: "1" }).andWhere('bezeichnung1', '!=', '').orderBy('bezeichnung1').limit(limit).offset(offset);
@@ -15,12 +21,21 @@ export async function getPatients(offset: number, limit: number): Promise<Array<
     )
 }
 
+/**
+ * Number of total patients in the database. (Which are entries in the kontakt table with istpatient = 1 and not deleted)
+ * @returns 
+ */
 export async function getTotalPatientCount(): Promise<number> {
     const result = await db('kontakt').count<{ count: number }>('id as count').where({ istpatient: "1" })
         .whereNot({ deleted: "1" }).first();
     return result ? result.count : 0;
 }
 
+/**
+ * Retrieve patient entry by their unique ID (which is not the patient number, but an UUID).
+ * @param id 
+ * @returns 
+ */
 export async function getPatientById(id: string) {
     console.log("getPatientById called with id:", id);
     try {
@@ -36,6 +51,10 @@ export async function getPatientById(id: string) {
     }
 }
 
+/**
+ * Process patient data by their lastname, and/or firstname and/or birthdate.
+ * @param descr a string like lastnanme, firstname, birthdate (dd.mm.yyyy)
+ */
 export async function extractDataByPatData(descr: string) {
     try {
         const { lastname, firstname, birthdate } = (() => {
@@ -69,6 +88,11 @@ export async function extractDataByPatData(descr: string) {
     }
 }
 
+/**
+ * Process patient data by their patient number (KG Nummer) (which is not the patient ID).
+ * @param patnumber 
+ * @returns 
+ */
 export async function extractDataByPatNumber(patnumber: string) {
     try {
         const pat = await db("kontakt")
@@ -83,10 +107,15 @@ export async function extractDataByPatNumber(patnumber: string) {
     }
 }
 
+/**
+ * Process patient data to output directory.
+ * @param id 
+ */
 export async function extractData(id: string) {
     try {
         const pat = await getPatientById(id);
         if (pat) {
+            // create output directory and write raw patient entry a sjson
             const bdate = pat.geburtsdatum ? elexisDateToDateString(pat.geburtsdatum) : 'unknown_date';
             const dirname = (pat.bezeichnung1 || 'unknown_name') + "_" +
                 (pat.bezeichnung2 || 'unknown_surname') + "_" +
@@ -95,6 +124,8 @@ export async function extractData(id: string) {
             const patpath = path.join(process.env.output || "./data", dirname);
             await fs.mkdir(patpath, { recursive: true });
             await fs.writeFile(path.join(patpath, "info.json"), JSON.stringify(pat, null, 2));
+
+            // create summary file (Deckblatt)
             let html = `<p>KG Nummer: ${pat.patientnr}</p>\n` +
                 `<div><pre>${(pat.anschrift || "Keine Anschrift vorhanden").trim()}\n${pat.telefon1 ? pat.telefon1 + ", " : ""}${pat.email}</pre></div>\n`;
 
@@ -150,6 +181,7 @@ export async function extractData(id: string) {
             await htmlToPdf(htmlfile2, path.join(patpath, "Bitte_lesen.pdf"));
             await fs.unlink(htmlfile2);
 
+            // Process Handlers for various data types
             const handlers = (process.env.handlers || "kons").split(",").map(h => h.trim().toLowerCase());
 
             if (handlers.includes("medication")) {

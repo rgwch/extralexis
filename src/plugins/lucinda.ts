@@ -1,15 +1,14 @@
-import { db } from '../index';
 import path from "path"
 import fs from "fs/promises"
 import { existsSync } from 'fs';
-import { elexisDateToDateString, normalize } from '../lib/util';
 
 /**
  * Lucina is a document management system for Elexis.
  * Documents are stored in a directory structure, typically under a main "documents" directory.
  * Each patient has a subdirectory named after their ID, and documents are stored within these subdirectories.
- * This function copies all documents from the patient's Lucinda directory to the output directory.
- * @param dir 
+ * This function copies all documents from the patient's Lucinda directory into either "Eingehende_Dokumente" or "Ausgehende_Dokumente" 
+ * subdirectories in the output directory. It tries to determine whether a document is incoming or outgoing based on its filename prefix.
+ * @param dir the lucinda directory for the patient, relative to the main documents directory
  * @param outputDir 
  * @returns 
  */

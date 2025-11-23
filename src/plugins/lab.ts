@@ -7,9 +7,10 @@ import { generateLabResultsHTML } from './lab-html';
 import { generateLabResultsPdf } from './lab-pdf';
 
 /**
- * Lab results are stored in the "laborwerte" table, linked to "laboritems" for metadata.
+ * Lab results are stored in the "laborwerte" table, linked to "laboritems" for metadata. 
+ * Some versions of Medelexis-Elexis store metadata also in "laborwerte".
  * This function extracts all lab results for a patient and saves them in both JSON and CSV formats.
- * @param patId 
+ * @param pat patient data as read from the "kontakt" table
  * @param outputDir 
  * @returns 
  */
@@ -66,12 +67,12 @@ export async function extractLabresults(pat: any, outputDir: string) {
         const csvContent = csvHeader + csvRows;
         await fs.writeFile(csvFilePath, csvContent);
 
-        // Also generate HTML table
+        // Also generate HTML table. Note: These html taables can be very wide!
         const htmlFileName = `labor.html`;
         const htmlFilePath = path.join(output, htmlFileName);
         await generateLabResultsHTML(filePath, htmlFilePath);
 
-        // Generate PDF from HTML
+        // Generate PDF from HTML. They are often very wide, so use A3 landscape. Anyway, the CSV files are better to re-use these values.
         const pdfFileName = `Labor.pdf`;
         const pdfFilePath = path.join(outputDir, pdfFileName);
         await generateLabResultsPdf(htmlFilePath, pdfFilePath, {

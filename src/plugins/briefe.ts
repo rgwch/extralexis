@@ -11,8 +11,9 @@ import { existsSync } from 'fs';
  * are handled by a document manager, such as omnivore or lucinda. Most recent versions like elexis ungrad handle 
  * all documents consistently and don't use "briefe" anymore.
  * 
- * This function extracts all documents stored in "briefe"/"heap" and saves them to the output directory.
- * @param patId 
+ * This function extracts all documents stored in "briefe"/"heap" and saves them to the output directory as "Ausgehende_Documente", 
+ * which is not entirely accuryte, since, as saif before, early versions of elexis stored also incoming docs in "Briefe".
+ * @param pat patient data as read from the "kontakt" table 
  * @param outputDir 
  */
 export async function extractBriefe(pat: any, outputDir: string) {

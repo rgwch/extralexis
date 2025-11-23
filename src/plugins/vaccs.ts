@@ -6,8 +6,8 @@ import { htmlToPdf } from '../lib/pdf';
 
 /**
  * Vaccinations are stored in the "at_medevit_elexis_impfplan" table. 
- * This function extracts all vaccinations for a patient and saves them in both JSON and CSV formats.
- * @param patId 
+ * This function extracts all vaccinations for a patient and saves them in JSON, CSV, and PDF formats.
+ * @param pat patient data as read from the "kontakt" table
  * @param outputDir 
  * @returns 
  */

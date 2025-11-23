@@ -12,8 +12,6 @@ if(!process.env.converter){
 
 // Load configuration file if it exists
 function loadConfigFile() {
-    // const scriptPath = process.argv[1]; // Path to the currently running script
-    // const configPath = path.join(path.basename(scriptPath, path.extname(scriptPath)) + '.cfg');
     const configPath = path.join(process.cwd(), 'extralexis.cfg');
     console.log(`Looking for configuration file at: ${configPath}`);
     if (fs.existsSync(configPath)) {
@@ -120,6 +118,9 @@ async function checkPrerequisites(): Promise<boolean> {
 }
 
 const program = new Command();
+/**
+ * Database connection. Only mysql/mariadb is supported for now.
+ */
 export const db = knex({
     client: 'mysql2',
     connection: {

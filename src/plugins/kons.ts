@@ -7,12 +7,10 @@ import { samdasToHtml, plaintextToHtml } from '../lib/samdas';
 
 /**
  * Text entries of consultations (Konsultationen) are stored in the "behandlungen" table.
- * Elexis uses a custom rich text format called SAMDAS, and a versioned resource system to store
- * the actual content. This function extracts all consultations for all cases of a patient,
- * converts them to HTML, and saves them in a single HTML file per case.
- * The conversion from VersionedResource/Samdas to HTML is done using a webservice (elexis_converter_x.y.z.jar) 
- * and the @rgwch/samdastools library.
- * @param patId 
+ * Elexis used in early versions a plainbtext format, in more recent versions a custom rich text format called SAMDAS, 
+ * and a versioned resource system to store the actual content. 
+ * This function extracts all consultations for all cases of a patient, converts them to HTML, and saves them in a single HTML and PDF file per case.
+ * @param pat patient data as read from the "kontakt" table
  * @param outputDir 
  * @returns 
  */
