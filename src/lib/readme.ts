@@ -1,3 +1,6 @@
+/*
+    The strings here are written in a summary file in each exported patient directory.
+*/
 import { htmlSkeleton } from "./util"
 
 const readme_html_body = `<div class="container">

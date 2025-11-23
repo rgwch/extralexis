@@ -1,6 +1,6 @@
 {
   "name": "extralexis",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "main": "index.js",
   "scripts": {
     "dev": "tsc && NODE_ENV=debug node ./dist/index.js",

@@ -1,9 +1,8 @@
 # Extralexis - Extract data from Elexis
 
-This tool is for doctors using the [Elexis](http://www.elexis.ch) EMR system who are closing their medical practice. It extracts relevant patient data into separate directories in human-readable form. 
-These directories can easily be copied to a USB stick or burned to a CD to hand them out directly to the patient.
+This tool extracts relevant patient data from the [Elexis](http://www.elexis.ch) EMR system into different files for human reading (ODT, PDF, HTML) and for automated processing (JSON, CSV, XML).
 
-You can also use this tool to extract data for only one patient - e.g., someone who is changing doctors.
+Patients can receive these files on a USB stick or CD to hand them out to other doctors, e.g., when changing doctors or if the family doctor closes their practice.
 
 Currently, the tool extracts:
 
@@ -30,13 +29,13 @@ git clone https://github.com/rgwch/extralexis
 cd extralexis
 npm i
 ```
-Then, copy .env.sample to .env and change the values to match your own system and the data types you want to include in the export.
+Then, copy .env.copy to .env (or to extralexis.cfg) and change the values to match your own system and the data types you want to include in the export.
 
 ## Usage
 
 ### Helper Service
 
-Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format. This helper service is in the elexis_converter_x.x.x.jar which is launched automatically at the beginning of the script and terminated at the end. This service requires Java version 17 or higher. 
+Because Elexis uses some data structures that are very Java-specific, we need a converter service to extract this data into an exportable format. This helper service is in the elexis_converter_x.x.x.jar which is launched automatically at the beginning of the script and terminated at the end. This service requires Java version 17 or higher. By default, it needs port 8080 to be available.
 
 ### Main program
 
@@ -52,24 +51,26 @@ where possible options are:
 * -d or --data: extract patients by identifier lastname,firstname,birthdate. e.g., `testperson,armeswesen,1.2.1950` or `testperson` or `,armeswesen` or `,,1.2.1950`. Will extract all matching patients.  
 * -a or --all: extract all patients (can take a very long time)
 
-After processing, there will be a subdirectory in the directory declared with "output" in .env for every matched patient. Data is provided in .json, .csv, .html, or .pdf format, as appropriate.
+After processing, there will be a subdirectory in the declared output directory for every matched patient. Data is provided in .json, .csv, .html, .odt, .xml, or .pdf format, as appropriate.
 
 ### Troubleshooting
 
-In newer Ubuntu distributions, PDF generation may fail because [Puppeteer](https://github.com/puppeteer/puppeteer) (the library used as PDF-Generator) can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
-Or, probably more conventient: You might install an official version of the [Chrome Browser](https://www.google.com/intl/de/chrome/). If puppetteer finds such an instance of Chrome, it will use that.
+In newer Ubuntu distributions, PDF generation may fail because [Puppeteer](https://github.com/puppeteer/puppeteer) (the library used as PDF generator) can't launch its unsecured Chrome browser. You can disable this temporarily with `echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns` until the next boot, or until you enter `echo 1 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns`
+
+Alternatively, and probably more convenient: You can install an official version of the [Chrome Browser](https://www.google.com/intl/de/chrome/) or the [Chromium Browser](https://www.chromium.org/getting-involved/download-chromium/). If Puppeteer finds such an instance of Chrome or Chromium, it will use that.
 
 ## Standalone
 
 If you have installed [bun](https://bun.sh/), you can create a standalone program: `bun install`, then `bun run standalone` will create a single executable that runs on computers without Node.js or Bun installed. You'll still need elexis_converter_x.y.z.jar in the same directory as the executable (and Java 17 installed, but if you are using Elexis, this will probably already be available).
+As a convenience, the [releases](https://github.com/rgwch/extralexis/releases/) have such executables ready for download. 
 
 **Important for PDF generation:** The standalone executable requires Chrome or Chromium to be installed on the target system for PDF generation to work. If Chrome is not found, you may need to:
 - Install Google Chrome on the target system, or
 - Run `npx puppeteer browsers install chrome` in the same directory as the executable
 
-As a convenience, you can create an 'extralexis.cfg' file with the same contents as described in .env.copy. On startup, Extralexis will look for such a file and parse it if found. Values in that file will override environment values.
+You can create an 'extralexis.cfg' file with the same contents as described in .env.copy. On startup, Extralexis will look for such a file and parse it if found. Values in that file will override environment values.
 
-The script `deployment.sh`  will create extralexis executables for Linux-x64, Windows-x64, Mac-x64 and Mac-arm64 Systems.
+The script `deployment.sh` will create Extralexis executables for Linux-x64, Windows-x64, Mac-x64, and Mac-arm64 systems.
 
 ## Acknowledgement
 
