@@ -21,12 +21,13 @@ export async function generateLabResultsPdf(htmlFilePath: string, outputPdfPath:
         printBackground: true,
         scale: 0.7 // Smaller scale to fit more content
     };
-    const chromePath = await findChromePath();
+    let chromePath = await findChromePath();
 
     const finalOptions = { ...defaultOptions, ...options };
-    if (chromePath) {
-        console.log(`Using system Chrome at: ${chromePath}`);
+    if (chromePath && process.env.NODE_ENV !== 'debug') {
+        // console.log(`Using system Chrome at: ${chromePath}`);
     } else {
+        chromePath = undefined
         console.log('System Chrome not found, using bundled Chromium (may require download)');
     }
     // Ensure output directory exists

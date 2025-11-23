@@ -42,7 +42,7 @@ export async function extractMedication(pat: any, outputDir: string) {
     await fs.mkdir(output, { recursive: true });
 
     try {
-        const meds: Array<any> = await db("patient_artikel_joint").where({ deleted: "0", patientid: pat.id }).orderBy("datefrom", "asc")
+        const meds: Array<any> = await db("patient_artikel_joint").where({ patientid: pat.id }).andWhereNot({ deleted: "1" }).orderBy("datefrom", "asc")
         if (meds.length == 0) {
             console.log(`No medications found for patient ${pat.id}`);
             return;
@@ -69,25 +69,40 @@ export async function extractMedication(pat: any, outputDir: string) {
             prescription.prescdate = elexisDateToDateString(med.prescdate);
             prescription.presctype = med.presctype;
             prescription.dosis = med.dosis
+            prescription.rezeptID = med.rezeptid ?? ""
             all.push(prescription)
         }
         // Write JSON file
         const fileName = `medications.json`;
         const filePath = path.join(output, fileName);
         await fs.writeFile(filePath, JSON.stringify(all, null, 2));
-        let htmlFix = '<h2>Fixmedikation</h2><table><tr><th>Startdatum</th><th>Medikament</th><th>Enddatum</th><th style="min-width:100px">Dosis</th></tr>';
+        let htmlFix = '<h2>Fixmedikation</h2><table><tr><th>Startdatum</th><th>Medikament</th><th style="min-width:100px">Dosis</th></tr>';
+        let htmlFixEarlier = '<h2>Frühere Fixmedikation</h2><table><tr><th>Startdatum</th><th>Medikament</th><th>Enddatum</th><th style="min-width:100px">Dosis</th></tr>';
         let htmlOther = "<br /><br /><hr><br /><h2>Alle Medikamente</h2><table><tr><th>Datum</th><th>Medikament</th><th>Dosis</th></tr>";
+        let bHasFix = false;
+        let bHasEarlierFix = false;
+        let bHasOther = false;
         for (const row of all) {
-            if (row.presctype == medicationType.fixed_medication) {
-                htmlFix += `<tr><td>${row.dateFrom}</td><td>${row.name}</td><td>${row.dateUntil}</td><td style="width:100px;">${row.dosis}</td></tr>`;
+            // console.log(row);
+            if (row.presctype == medicationType.fixed_medication && row.rezeptID.length == 0) {
+                if (row.dateUntil && row.dateUntil.length > 0 && elexisDateToISODate(row.dateUntil) < new Date().toISOString().split('T')[0]) {
+                    htmlFixEarlier += `<tr><td>${row.dateFrom}</td><td>${row.name}</td><td>${row.dateUntil}</td><td style="min-width:100px;">${row.dosis}</td></tr>`;
+                    bHasEarlierFix = true;
+                } else {
+                    htmlFix += `<tr><td>${row.dateFrom}</td><td>${row.name}</td><td style="min-width:100px;">${row.dosis}</td></tr>`;
+                    bHasFix = true;
+                }
             } else {
                 htmlOther += `<tr><td>${row.dateFrom}</td><td>${row.name}</td><td>${row.dosis}</td></tr>`;
+                bHasOther = true;
             }
         }
         htmlFix += "</table>";
+        htmlFixEarlier += "</table>";
         htmlOther += "</table>";
         const htmlFile = path.join(output, "Medikamente.html")
-        await fs.writeFile(htmlFile, htmlSkeleton(pat, "Medikamente", htmlFix + htmlOther));
+        const meditypes = (bHasFix ? htmlFix : "") + (bHasEarlierFix ? htmlFixEarlier : "") + (bHasOther ? htmlOther : "")
+        await fs.writeFile(htmlFile, htmlSkeleton(pat, "Medikamente", meditypes));
         await htmlToPdf(htmlFile, path.join(outputDir, "Medikamente.pdf"));
         console.log(`Extracted ${all.length} medications for patient ${pat.id}`);
 

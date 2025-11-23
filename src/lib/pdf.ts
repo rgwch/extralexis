@@ -53,14 +53,15 @@ export async function htmlToPdf(htmlFilePath: string, outputPdfPath: string) {
 
     // Try to find system Chrome first
     const chromePath = await findChromePath();
-    if (chromePath) {
-        console.log(`Using system Chrome at: ${chromePath}`);
+    if (chromePath && process.env.NODE_ENV !== 'debug') {
+        // console.log(`Using system Chrome at: ${chromePath}`);
         launchOptions.executablePath = chromePath;
     } else {
         console.log('System Chrome not found, using bundled Chromium (may require download)');
         // Let Puppeteer handle downloading Chromium if needed
         try {
             // First try without specifying executable path
+            await puppeteer.launch(launchOptions).then(browser => browser.close());
         } catch (error) {
             console.error('Failed to launch browser:', error);
             throw new Error('Could not launch browser. Please install Chrome or run: npx puppeteer browsers install chrome');

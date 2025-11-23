@@ -5,9 +5,9 @@ import { Command } from 'commander';
 import { spawn, ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-const CONVERTER="elexis_converter_5.0.2.jar";
-if(!process.env.converter){
-    process.env.converter="http://localhost:8080";
+const CONVERTER = "elexis_converter_5.0.2.jar";
+if (!process.env.converter) {
+    process.env.converter = "http://localhost:8080";
 }
 
 // Load configuration file if it exists
@@ -19,22 +19,22 @@ function loadConfigFile() {
         try {
             const configContent = fs.readFileSync(configPath, 'utf-8');
             const lines = configContent.split('\n');
-            
+
             for (const line of lines) {
                 const trimmedLine = line.trim();
                 // Skip empty lines and comments (lines starting with #)
                 if (!trimmedLine || trimmedLine.startsWith('#')) {
                     continue;
                 }
-                
+
                 const equalIndex = trimmedLine.indexOf('=');
                 if (equalIndex > 0) {
                     const name = trimmedLine.substring(0, equalIndex).trim();
                     const value = trimmedLine.substring(equalIndex + 1).trim();
-                    
+
                     // Remove quotes if present
                     const cleanValue = value.replace(/^["']|["']$/g, '');
-                    
+
                     process.env[name] = cleanValue;
                     console.log(`Set ${name}=${cleanValue}`);
                 }
@@ -42,7 +42,7 @@ function loadConfigFile() {
         } catch (error) {
             console.error(`Error reading configuration file ${configPath}:`, error);
         }
-    }else{
+    } else {
         console.log('No configuration file found.');
     }
 }
@@ -61,17 +61,17 @@ function checkJavaVersion(): Promise<boolean> {
                 resolve(false);
                 return;
             }
-            
+
             // Java version output goes to stderr
             const versionOutput = stderr || stdout;
             const versionMatch = versionOutput.match(/version "(\d+)/);
-            
+
             if (!versionMatch) {
                 console.error('❌ Could not determine Java version');
                 resolve(false);
                 return;
             }
-            
+
             const majorVersion = parseInt(versionMatch[1]);
             if (majorVersion >= 17) {
                 console.log(`✅ Java ${majorVersion} detected (required: 17+)`);
@@ -104,10 +104,10 @@ function checkConverterJar(): boolean {
  */
 async function checkPrerequisites(): Promise<boolean> {
     console.log('🔍 Checking prerequisites...');
-    
+
     const javaOk = await checkJavaVersion();
     const jarOk = checkConverterJar();
-    
+
     if (javaOk && jarOk) {
         console.log('✅ All prerequisites met');
         return true;
@@ -179,12 +179,14 @@ async function startConverterService(): Promise<void> {
         });
 
         // Fallback timeout in case we don't get a clear "started" message
+
         setTimeout(() => {
             if (converterProcess && !converterProcess.killed) {
                 console.log('Converter service startup timeout reached, proceeding...');
                 resolve();
             }
-        }, 5000);
+        }, 10000);
+
     });
 }
 
