@@ -72,6 +72,18 @@ You can create an 'extralexis.cfg' file with the same contents as described in .
 
 The script `deployment.sh` will create Extralexis executables for Linux-x64, Windows-x64, Mac-x64, and Mac-arm64 systems.
 
+## Security considerations
+
+* Extralexis makes only read requests to the database.
+* The Helper Service is of course OpenSource as well: [rgw-utility](https://gitlab.com/rgwch/ch.rgw.utility/-/tree/webservice?ref_type=heads), whis was originally part of Elexis.
+
+## No Warranty
+
+You can use this program free of charge and you may modify it as you like. Please note:
+
+THE PROGRAM IS PROVIDED ON AN “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF TITLE, NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Each Recipient is solely responsible for determining the appropriateness of using and distributing the Program and assumes all risks associated with its exercise of rights under this Agreement, including but not limited to the risks and costs of program errors, compliance with applicable laws, damage to or loss of data, programs or equipment, and unavailability or interruption of operations. 
+
+
 ## Acknowledgement
 
 Parts of this program were created or improved by Github Copilot (Claude Sonnet 4).

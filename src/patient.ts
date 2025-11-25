@@ -225,6 +225,9 @@ export async function extractData(id: string) {
             if (handlers.includes("labor")) {
                 const { extractLabresults } = await import('./plugins/lab');
                 await extractLabresults(pat, patpath);
+                await fs.rename(path.join(patpath, "Labor", "labor.csv"), path.join(patpath, "Labor.csv")).catch(() => {
+                    console.warn("labor.csv probably does not exist, skipping moving it to Rroot.");
+                })
                 await fs.rename(path.join(patpath, "Labor"), path.join(patpath, "Rohdaten", "Labor")).catch(() => {
                     console.warn("Labor folder probably does not exist, skipping moving it to Rohdaten.");
                 })
